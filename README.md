@@ -4,9 +4,9 @@
 
 ## Current Status
 
-**Node 1 / 8:** project scaffold and Streamlit workbench.
+**Node 2 / 8:** validated data contracts and deterministic workflow controller.
 
-The current version provides the application shell only. Search, model calls, analysis, and report generation will be added after each review gate is approved.
+The current version provides the application shell, strict Pydantic models, external client protocols, offline fixtures, and an explicit workflow state machine. Search, model calls, analysis, and report generation will be added after each review gate is approved.
 
 ## Planned Capabilities
 

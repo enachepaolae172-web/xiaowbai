@@ -1,0 +1,22 @@
+{
+  "run_id": "offline-node2-fixture",
+  "request": {
+    "industry": "企业级 AI Agent",
+    "region": "中国",
+    "start_year": 2024,
+    "end_year": 2026,
+    "target_company": "火山引擎",
+    "strategy_question": "火山引擎应优先服务哪些客户群，并形成怎样的差异化？",
+    "mode": "sample"
+  },
+  "status": "pending",
+  "history": [
+    {
+      "status": "pending",
+      "occurred_at": "2026-08-09T10:00:00Z",
+      "note": "Offline fixture created."
+    }
+  ],
+  "result": null,
+  "error": null
+}

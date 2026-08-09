@@ -1,0 +1,63 @@
+{
+  "schema_version": "0.1",
+  "request": {
+    "industry": "企业级 AI Agent",
+    "region": "中国",
+    "start_year": 2024,
+    "end_year": 2026,
+    "target_company": "火山引擎",
+    "strategy_question": "火山引擎应优先服务哪些客户群，并形成怎样的差异化？",
+    "mode": "sample"
+  },
+  "generated_at": "2026-08-09T10:00:00Z",
+  "core_conclusions": [
+    "该文件只用于验证数据契约，不代表正式研究结论。"
+  ],
+  "module_decisions": [
+    {
+      "module": "pest",
+      "enabled": true,
+      "reason": "PEST 是所有研究任务的必选模块。",
+      "supporting_source_ids": ["S01"],
+      "missing_evidence": []
+    },
+    {
+      "module": "concentration",
+      "enabled": false,
+      "reason": "离线样例没有连续市场份额数据。",
+      "supporting_source_ids": [],
+      "missing_evidence": ["至少两个时期的可比市场份额"]
+    }
+  ],
+  "sections": [
+    {
+      "module": "pest",
+      "title": "宏观环境分析",
+      "summary": "离线数据契约示例。",
+      "evidence_ids": ["S01"],
+      "confidence": "low",
+      "facts": ["示例来源可被数据模型读取。"],
+      "judgments": [],
+      "recommendations": []
+    }
+  ],
+  "risks": ["当前内容为结构测试数据。"],
+  "unknowns": ["正式市场数据尚未接入。"],
+  "sources": [
+    {
+      "source_id": "S01",
+      "title": "火山方舟产品文档",
+      "publisher": "火山引擎",
+      "published_at": "2026-06-23",
+      "url": "https://www.volcengine.com/docs/82379/1298459",
+      "tier": "primary",
+      "origin": "full_text",
+      "excerpt": "此摘录仅用于验证离线数据模型。",
+      "used_in": ["pest"],
+      "time_scope": "2026",
+      "region_scope": "中国",
+      "unit": null,
+      "statistical_scope": null
+    }
+  ]
+}
