@@ -51,6 +51,14 @@ class Confidence(StrEnum):
     UNKNOWN = "unknown"
 
 
+class ResearchArea(StrEnum):
+    BUSINESS = "business"
+    MARKET = "market"
+    INDUSTRY = "industry"
+    RISK = "risk"
+    EVIDENCE = "evidence"
+
+
 class ModuleName(StrEnum):
     PEST = "pest"
     MARKET_OVERVIEW = "market_overview"
@@ -145,6 +153,81 @@ class EvidencePool(StrictModel):
     @property
     def is_sufficient(self) -> bool:
         return len(self.key_fact_sources) >= self.minimum_key_fact_sources
+
+
+class ResearchSubQuestion(StrictModel):
+    area: ResearchArea
+    question: str = Field(min_length=5, max_length=300)
+    rationale: str = Field(min_length=5, max_length=500)
+    priority: int = Field(ge=1, le=5)
+    search_queries: list[str] = Field(min_length=1, max_length=3)
+
+    @field_validator("search_queries")
+    @classmethod
+    def validate_search_queries(cls, values: list[str]) -> list[str]:
+        cleaned = [" ".join(value.split()) for value in values]
+        if any(not value or len(value) > 200 for value in cleaned):
+            raise ValueError("search queries must contain 1 to 200 characters")
+        if len({value.casefold() for value in cleaned}) != len(cleaned):
+            raise ValueError("search queries must be unique within a sub-question")
+        return cleaned
+
+
+class ResearchPlan(StrictModel):
+    questions: list[ResearchSubQuestion] = Field(min_length=1, max_length=12)
+    search_queries: list[str] = Field(min_length=1, max_length=10)
+    unknowns: list[str] = Field(default_factory=list, max_length=20)
+
+    @field_validator("search_queries")
+    @classmethod
+    def validate_plan_queries(cls, values: list[str]) -> list[str]:
+        cleaned = [" ".join(value.split()) for value in values]
+        if any(not value or len(value) > 200 for value in cleaned):
+            raise ValueError("search queries must contain 1 to 200 characters")
+        if len({value.casefold() for value in cleaned}) != len(cleaned):
+            raise ValueError("plan search queries must be unique")
+        return cleaned
+
+    @field_validator("unknowns")
+    @classmethod
+    def validate_unknowns(cls, values: list[str]) -> list[str]:
+        return _validate_text_items(values, max_length=500, label="plan unknowns")
+
+
+class EvidenceFact(StrictModel):
+    statement: str = Field(min_length=1, max_length=1000)
+    confidence: Confidence = Confidence.UNKNOWN
+    time_scope: str | None = Field(default=None, max_length=100)
+    region_scope: str | None = Field(default=None, max_length=100)
+    unit: str | None = Field(default=None, max_length=100)
+    statistical_scope: str | None = Field(default=None, max_length=300)
+
+
+class SourceEvidence(StrictModel):
+    source_id: str = Field(pattern=r"^S\d{2,3}$")
+    facts: list[EvidenceFact] = Field(default_factory=list, max_length=20)
+    explanatory_context: list[str] = Field(default_factory=list, max_length=20)
+    unknowns: list[str] = Field(default_factory=list, max_length=20)
+
+    @field_validator("explanatory_context", "unknowns")
+    @classmethod
+    def validate_text_lists(cls, values: list[str]) -> list[str]:
+        return _validate_text_items(
+            values,
+            max_length=1000,
+            label="source evidence text",
+        )
+
+
+class EvidenceExtraction(StrictModel):
+    items: list[SourceEvidence] = Field(min_length=1, max_length=15)
+
+    @model_validator(mode="after")
+    def validate_unique_source_ids(self) -> EvidenceExtraction:
+        source_ids = [item.source_id for item in self.items]
+        if len(source_ids) != len(set(source_ids)):
+            raise ValueError("evidence extraction source_id values must be unique")
+        return self
 
 
 class ModuleDecision(StrictModel):
@@ -248,3 +331,15 @@ class ModelResponse(StrictModel):
     model: str = Field(min_length=1, max_length=200)
     input_tokens: int = Field(default=0, ge=0)
     output_tokens: int = Field(default=0, ge=0)
+
+
+def _validate_text_items(
+    values: list[str],
+    *,
+    max_length: int,
+    label: str,
+) -> list[str]:
+    cleaned = [" ".join(value.split()) for value in values]
+    if any(not value or len(value) > max_length for value in cleaned):
+        raise ValueError(f"{label} must contain 1 to {max_length} characters")
+    return cleaned

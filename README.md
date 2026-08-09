@@ -4,9 +4,9 @@
 
 ## Current Status
 
-**Node 3 / 8:** bounded Tavily search, extraction, source classification, and evidence pool.
+**Node 4 / 8:** Doubao structured-output client, validated research planning, and evidence extraction.
 
-The current version provides the application shell, strict data contracts, deterministic workflow state, a Tavily adapter, URL normalization, source classification, and an evidence pool. Model calls, analysis, and report generation will be added after each review gate is approved.
+The current version provides the application shell, strict data contracts, deterministic workflow state, Tavily evidence collection, and an OpenAI-compatible Doubao client. Research planning and evidence extraction are validated with Pydantic; strategic analysis and report generation remain behind later review gates.
 
 ## Planned Capabilities
 

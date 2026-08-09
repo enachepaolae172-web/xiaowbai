@@ -1,0 +1,25 @@
+{
+  "items": [
+    {
+      "source_id": "S01",
+      "facts": [
+        {
+          "statement": "该官方页面介绍了火山引擎企业级 AI 服务能力。",
+          "confidence": "high",
+          "time_scope": null,
+          "region_scope": "中国",
+          "unit": null,
+          "statistical_scope": null
+        }
+      ],
+      "explanatory_context": [],
+      "unknowns": ["页面未披露对应收入"]
+    },
+    {
+      "source_id": "S02",
+      "facts": [],
+      "explanatory_context": ["搜索摘要提供了待核验的市场线索"],
+      "unknowns": ["需要打开正文核验"]
+    }
+  ]
+}

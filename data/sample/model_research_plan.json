@@ -1,0 +1,31 @@
+{
+  "questions": [
+    {
+      "area": "business",
+      "question": "火山引擎企业级 AI Agent 的核心产品与收入模式是什么？",
+      "rationale": "先确认业务边界，避免把集团其他业务混入研究口径。",
+      "priority": 5,
+      "search_queries": [
+        "火山引擎 AI Agent 产品 企业服务 官方"
+      ]
+    },
+    {
+      "area": "market",
+      "question": "中国企业级 AI Agent 市场的规模、增速和客户结构如何？",
+      "rationale": "市场容量和客户结构决定优先进入的细分市场。",
+      "priority": 5,
+      "search_queries": [
+        "中国 企业级 AI Agent 市场规模 2025",
+        "企业 AI Agent 客户结构 中国"
+      ]
+    }
+  ],
+  "search_queries": [
+    "火山引擎 AI Agent 产品 企业服务 官方",
+    "中国 企业级 AI Agent 市场规模 2025",
+    "企业 AI Agent 客户结构 中国"
+  ],
+  "unknowns": [
+    "可比口径下的厂商市场份额可能缺少公开数据"
+  ]
+}

@@ -14,3 +14,10 @@ Node 3 also adds:
 - `extract_results.json` with two successfully extracted full-text sources.
 
 The remaining search-only source must be treated as a lead and cannot independently support a key fact.
+
+Node 4 adds validated mock model outputs:
+
+- `model_research_plan.json` contains decomposed research questions and no more than 10 queries.
+- `model_evidence_extraction.json` keeps full-text facts separate from search-only clues.
+
+They exercise the Doubao task contracts without making a paid API call.

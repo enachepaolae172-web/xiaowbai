@@ -3,6 +3,7 @@
 import streamlit as st
 
 from src.config import APP_NAME, APP_VERSION
+from src.model_client import DoubaoError, DoubaoModelClient
 
 
 st.set_page_config(
@@ -20,7 +21,7 @@ with st.sidebar:
         default="样例模式",
         selection_mode="single",
     )
-    st.text_input(
+    doubao_api_key = st.text_input(
         "豆包 API Key",
         type="password",
         disabled=mode != "实时模式",
@@ -32,6 +33,22 @@ with st.sidebar:
         disabled=mode != "实时模式",
         placeholder="仅在当前会话中使用",
     )
+    test_doubao = st.button(
+        "测试豆包连接",
+        disabled=mode != "实时模式" or not doubao_api_key,
+        use_container_width=True,
+    )
+    if test_doubao:
+        try:
+            with st.spinner("正在测试豆包连接..."):
+                connection = DoubaoModelClient(api_key=doubao_api_key).test_connection()
+            st.success(
+                "连接成功 · "
+                f"{connection.model} · "
+                f"{connection.input_tokens + connection.output_tokens} tokens"
+            )
+        except DoubaoError as exc:
+            st.error(str(exc))
 
 st.title("企业战略研究助手")
 st.caption(f"Enterprise AI Strategy Research Agent · {APP_VERSION}")
