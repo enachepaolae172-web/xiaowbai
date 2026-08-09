@@ -1,0 +1,142 @@
+{
+  "modules": [
+    {
+      "profile": {
+        "module": "concentration",
+        "relevant_to_question": true,
+        "rationale": "竞争格局与差异化相关，但离线证据只有一个时期。",
+        "evidence_ids": ["S02"],
+        "missing_evidence": ["缺少第二个时期的同口径市场份额"],
+        "comparable_periods": 1
+      },
+      "analysis": null
+    },
+    {
+      "profile": {
+        "module": "value_chain",
+        "relevant_to_question": true,
+        "rationale": "证据覆盖基础模型、平台编排和企业交付环节。",
+        "evidence_ids": ["S01", "S02"],
+        "missing_evidence": [],
+        "value_chain_stages": 3,
+        "has_profit_or_control_evidence": true
+      },
+      "analysis": {
+        "module": "value_chain",
+        "title": "企业级 AI Agent 价值链",
+        "summary": "离线样例用于验证价值链模块的启用和引用。",
+        "facts": ["离线证据覆盖技术平台和企业交付两个以上环节。"],
+        "judgment": "平台编排与行业交付之间的连接可能形成战略控制点。",
+        "recommendations": ["优先沉淀可复用的行业工作流和交付资产。"],
+        "evidence_ids": ["S01", "S02"],
+        "counterpoints": ["不同客户的定制需求可能削弱复用效率。"],
+        "unknowns": ["缺少各环节真实毛利率数据。"],
+        "confidence": "medium"
+      }
+    },
+    {
+      "profile": {
+        "module": "key_success_factors",
+        "relevant_to_question": true,
+        "rationale": "关键能力与差异化相关，但竞品样本不足。",
+        "evidence_ids": ["S02"],
+        "missing_evidence": ["缺少第二个可比竞争者"],
+        "compared_competitors": 1,
+        "capability_dimensions": 2
+      },
+      "analysis": null
+    },
+    {
+      "profile": {
+        "module": "lifecycle",
+        "relevant_to_question": true,
+        "rationale": "增长和客户试点信号可用于初步判断生命周期。",
+        "evidence_ids": ["S01", "S02"],
+        "missing_evidence": [],
+        "lifecycle_signals": 2
+      },
+      "analysis": {
+        "module": "lifecycle",
+        "title": "企业级 AI Agent 生命周期",
+        "summary": "离线样例用于验证增长和市场接受度信号。",
+        "facts": ["离线证据包含市场增长与企业试点两个信号。"],
+        "judgment": "该市场可暂按成长期假设管理，但仍需真实渗透率验证。",
+        "recommendations": ["在扩大投入前验证客户复购和规模化部署。"],
+        "evidence_ids": ["S01", "S02"],
+        "counterpoints": ["高增长可能来自低基数，不能单独证明进入成长期。"],
+        "unknowns": ["缺少同口径渗透率和续费数据。"],
+        "confidence": "low"
+      }
+    },
+    {
+      "profile": {
+        "module": "innovation_price_share",
+        "relevant_to_question": false,
+        "rationale": "本次问题聚焦客户和差异化，且缺少可比价格份额。",
+        "evidence_ids": ["S02"],
+        "missing_evidence": ["缺少可比产品、价格和份额数据"],
+        "comparable_products": 0,
+        "has_price_evidence": false,
+        "has_share_evidence": false
+      },
+      "analysis": null
+    }
+  ],
+  "action_plan": {
+    "target_customers": [
+      {
+        "choice": "优先验证流程密集、数据基础较好且业务负责人明确的大型企业客户。",
+        "rationale": "这类客户更可能形成可量化 ROI，并具备试点资源。",
+        "evidence_ids": ["S01", "S02"],
+        "confidence": "medium"
+      }
+    ],
+    "product_directions": [
+      {
+        "choice": "围绕可控工作流、效果评测和安全审计构建产品方案。",
+        "rationale": "企业采购同时关注业务结果和技术风险。",
+        "evidence_ids": ["S01", "S02"],
+        "confidence": "medium"
+      }
+    ],
+    "channel_directions": [
+      {
+        "choice": "采用重点行业直销与生态实施伙伴结合的验证路径。",
+        "rationale": "复杂项目需要直接理解客户问题，同时控制交付成本。",
+        "evidence_ids": ["S02"],
+        "confidence": "low"
+      }
+    ],
+    "value_chain_choices": [
+      {
+        "choice": "重点控制 Agent 编排、评测和行业工作流资产。",
+        "rationale": "这些环节连接通用技术能力与客户业务结果。",
+        "evidence_ids": ["S01", "S02"],
+        "confidence": "medium"
+      }
+    ],
+    "validation_actions": [
+      {
+        "milestone_day": 30,
+        "action": "完成十名目标客户访谈并确定两个高价值流程。",
+        "owner": "战略与产品团队",
+        "success_metric": "形成两个包含基线指标、预算人与技术约束的场景卡。",
+        "evidence_ids": ["S02"]
+      },
+      {
+        "milestone_day": 60,
+        "action": "与一名设计合作客户完成可运行 PoC。",
+        "owner": "产品与解决方案团队",
+        "success_metric": "核心任务成功率、人工接管率和单位任务成本达到预设门槛。",
+        "evidence_ids": ["S01", "S02"]
+      },
+      {
+        "milestone_day": 90,
+        "action": "完成价值复盘并决定扩容、调整或终止。",
+        "owner": "业务负责人",
+        "success_metric": "获得付费或扩容承诺，并明确下一阶段产品复用范围。",
+        "evidence_ids": ["S01", "S02"]
+      }
+    ]
+  }
+}

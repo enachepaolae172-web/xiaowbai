@@ -33,6 +33,15 @@ strategic implication are present; otherwise use null. Market data points must i
 unit, statistical scope, forecast status, and source_id. Set every cagr field to null because the
 application calculates CAGR deterministically. Do not invent survey percentages. Match the supplied
 JSON schema exactly.""",
+    "conditional_modules_and_action_plan": """Assess all five extension modules and return one evidence
+profile for each: concentration, value chain, key success factors, lifecycle, and innovation-price-share.
+Counts and booleans in a profile must be supported by the cited full-text sources. Provide an analysis
+only when its stated minimum evidence is genuinely present; the application will independently recompute
+eligibility and discard unsupported modules. Also produce evidence-backed choices for target customers,
+product direction, channel direction, value-chain position, and exactly three validation actions at days
+30, 60, and 90. Recommendations are analytical hypotheses, not facts, and each must include source IDs,
+confidence, rationale, and a measurable validation step. Never use search snippets as supporting evidence.
+Match the supplied JSON schema exactly.""",
 }
 
 

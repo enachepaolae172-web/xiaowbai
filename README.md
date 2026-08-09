@@ -4,9 +4,9 @@
 
 ## Current Status
 
-**Node 5 / 8:** evidence-backed PEST, market, customer, procurement, and Porter five-forces analysis.
+**Node 6 / 8:** evidence-gated extension modules, strategic action plan, and citable Markdown report.
 
-The current version provides the application shell, strict data contracts, Tavily evidence collection, and an OpenAI-compatible Doubao client. Mandatory strategic analysis now separates facts, judgments, and recommendations, verifies citations, and calculates comparable-market CAGR in code. Conditional modules and final report generation remain behind later review gates.
+The current version provides evidence collection, validated mandatory analysis, deterministic extension-module gates, and a Markdown report with citation auditing. Recommendations cover target customers, product, channel, value-chain position, and a 90-day validation plan. The complete Streamlit report experience remains behind the Node 7 review gate.
 
 ## Planned Capabilities
 
