@@ -4,9 +4,9 @@
 
 ## Current Status
 
-**Node 2 / 8:** validated data contracts and deterministic workflow controller.
+**Node 3 / 8:** bounded Tavily search, extraction, source classification, and evidence pool.
 
-The current version provides the application shell, strict Pydantic models, external client protocols, offline fixtures, and an explicit workflow state machine. Search, model calls, analysis, and report generation will be added after each review gate is approved.
+The current version provides the application shell, strict data contracts, deterministic workflow state, a Tavily adapter, URL normalization, source classification, and an evidence pool. Model calls, analysis, and report generation will be added after each review gate is approved.
 
 ## Planned Capabilities
 

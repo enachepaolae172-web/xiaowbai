@@ -1,0 +1,39 @@
+[
+  {
+    "title": "火山方舟产品文档",
+    "url": "https://www.volcengine.com/docs/82379/1298459?utm_source=test",
+    "content": "火山方舟提供模型服务与 API 文档。",
+    "score": 0.95,
+    "published_date": "2026-06-23",
+    "publisher": "火山引擎",
+    "time_scope": "2026",
+    "region_scope": "中国"
+  },
+  {
+    "title": "重复的火山方舟结果",
+    "url": "https://www.volcengine.com/docs/82379/1298459#section",
+    "content": "这是同一页面的重复搜索结果。",
+    "score": 0.72
+  },
+  {
+    "title": "人工智能产业研究",
+    "url": "https://www.caict.ac.cn/kxyj/qwfb/bps/2026-ai-report",
+    "content": "研究机构对企业人工智能市场进行分析。",
+    "score": 0.88,
+    "published_date": "2026-05-10",
+    "publisher": "中国信息通信研究院"
+  },
+  {
+    "title": "行业新闻线索",
+    "url": "https://example.com/news/ai-agent?source=feed",
+    "content": "这是一条需要进一步核验的新闻线索。",
+    "score": 0.61,
+    "publisher": "示例媒体"
+  },
+  {
+    "title": "无效链接",
+    "url": "ftp://example.com/file",
+    "content": "该结果应当被过滤。",
+    "score": 0.99
+  }
+]

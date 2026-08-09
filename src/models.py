@@ -121,6 +121,32 @@ class SourceRecord(StrictModel):
         return self.origin is not ContentOrigin.SEARCH_SNIPPET
 
 
+class EvidencePool(StrictModel):
+    sources: list[SourceRecord] = Field(default_factory=list, max_length=15)
+    warnings: list[str] = Field(default_factory=list)
+    search_result_count: int = Field(default=0, ge=0)
+    extraction_success_count: int = Field(default=0, ge=0)
+    minimum_key_fact_sources: int = Field(default=3, ge=1)
+
+    @model_validator(mode="after")
+    def validate_unique_sources(self) -> EvidencePool:
+        source_ids = [source.source_id for source in self.sources]
+        if len(source_ids) != len(set(source_ids)):
+            raise ValueError("evidence source_id values must be unique")
+        urls = [str(source.url) for source in self.sources]
+        if len(urls) != len(set(urls)):
+            raise ValueError("evidence source URLs must be unique")
+        return self
+
+    @property
+    def key_fact_sources(self) -> list[SourceRecord]:
+        return [source for source in self.sources if source.supports_key_fact]
+
+    @property
+    def is_sufficient(self) -> bool:
+        return len(self.key_fact_sources) >= self.minimum_key_fact_sources
+
+
 class ModuleDecision(StrictModel):
     module: ModuleName
     enabled: bool
