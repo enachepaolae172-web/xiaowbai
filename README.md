@@ -4,9 +4,9 @@
 
 ## Current Status
 
-**Node 4 / 8:** Doubao structured-output client, validated research planning, and evidence extraction.
+**Node 5 / 8:** evidence-backed PEST, market, customer, procurement, and Porter five-forces analysis.
 
-The current version provides the application shell, strict data contracts, deterministic workflow state, Tavily evidence collection, and an OpenAI-compatible Doubao client. Research planning and evidence extraction are validated with Pydantic; strategic analysis and report generation remain behind later review gates.
+The current version provides the application shell, strict data contracts, Tavily evidence collection, and an OpenAI-compatible Doubao client. Mandatory strategic analysis now separates facts, judgments, and recommendations, verifies citations, and calculates comparable-market CAGR in code. Conditional modules and final report generation remain behind later review gates.
 
 ## Planned Capabilities
 

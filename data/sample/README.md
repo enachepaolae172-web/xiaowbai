@@ -21,3 +21,7 @@ Node 4 adds validated mock model outputs:
 - `model_evidence_extraction.json` keeps full-text facts separate from search-only clues.
 
 They exercise the Doubao task contracts without making a paid API call.
+
+Node 5 adds `required_strategy_analysis.json`, a structural PEST, market, customer,
+procurement, and five-forces result. Its market values are explicitly labeled as an
+offline test index and must never be presented as real market data.

@@ -23,6 +23,16 @@ Keep each source_id unchanged. Put directly supported statements in facts, inter
 background in explanatory_context, and missing scope or unresolved issues in unknowns. A source with
 origin search_snippet must have an empty facts list. Return one item for every supplied source and
 match the provided JSON schema exactly.""",
+    "required_strategy_analysis": """Using only the supplied extracted evidence, complete all mandatory
+strategy modules: all four PEST dimensions; total market, growth stage, customer structure, all five
+customer decision roles, and procurement drivers; and all five Porter forces. Keep facts, judgments,
+and recommendations in their separate fields. Every supported judgment must cite full-text source IDs,
+state confidence, and include a counterpoint or uncertainty. Leave unsupported fields explicitly
+unknown. A force may use a 1-5 pressure_score only when facts, sources, rationale, uncertainty, and a
+strategic implication are present; otherwise use null. Market data points must include year, region,
+unit, statistical scope, forecast status, and source_id. Set every cagr field to null because the
+application calculates CAGR deterministically. Do not invent survey percentages. Match the supplied
+JSON schema exactly.""",
 }
 
 

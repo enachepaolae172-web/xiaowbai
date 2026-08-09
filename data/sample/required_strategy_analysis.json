@@ -1,0 +1,255 @@
+{
+  "pest": {
+    "assessments": [
+      {
+        "dimension": "political",
+        "impact": "mixed",
+        "facts": ["离线样例以正式来源中的政策信号作为分析输入。"],
+        "judgment": "政策支持与合规要求同时影响企业级 AI Agent 的商业化节奏。",
+        "recommendations": ["优先选择合规边界清晰且具有明确业务负责人的场景。"],
+        "evidence_ids": ["S01"],
+        "counterpoints": ["具体行业监管要求仍需逐行业核验。"],
+        "unknowns": [],
+        "confidence": "medium"
+      },
+      {
+        "dimension": "economic",
+        "impact": "opportunity",
+        "facts": ["离线样例证据显示企业关注可量化的降本增效。"],
+        "judgment": "预算将优先流向能够证明 ROI 的 Agent 项目。",
+        "recommendations": ["产品方案应内置试点前后的业务指标对比。"],
+        "evidence_ids": ["S02"],
+        "counterpoints": ["预算收紧可能延长采购决策周期。"],
+        "unknowns": [],
+        "confidence": "medium"
+      },
+      {
+        "dimension": "social",
+        "impact": "mixed",
+        "facts": ["离线样例证据提及业务人员对自动化工具的接受度差异。"],
+        "judgment": "组织采纳和岗位协同可能成为规模化应用的约束。",
+        "recommendations": ["试点中同时设计培训、权限和人工复核机制。"],
+        "evidence_ids": ["S02"],
+        "counterpoints": ["不同企业的数字化基础差异较大。"],
+        "unknowns": [],
+        "confidence": "low"
+      },
+      {
+        "dimension": "technological",
+        "impact": "opportunity",
+        "facts": ["离线样例证据描述了企业级 AI 服务的技术能力。"],
+        "judgment": "模型能力提升正在扩大 Agent 可落地任务范围。",
+        "recommendations": ["以可控工作流、评测和安全能力形成差异化。"],
+        "evidence_ids": ["S01"],
+        "counterpoints": ["复杂任务的稳定性和成本仍需实际压测。"],
+        "unknowns": [],
+        "confidence": "medium"
+      }
+    ]
+  },
+  "market": {
+    "total_market": {
+      "facts": ["离线样例包含一组同口径市场指数用于验证计算。"],
+      "judgment": "测试序列呈增长状态，但不代表真实市场规模。",
+      "recommendations": ["真实研究应替换为带机构、地区和口径的正式数据。"],
+      "evidence_ids": ["S01", "S02"],
+      "counterpoints": ["该指数仅用于程序测试，不能进入正式研究结论。"],
+      "unknowns": ["真实市场规模尚待实时搜索核验。"],
+      "confidence": "low",
+      "series": [
+        {
+          "metric_name": "离线市场规模指数",
+          "points": [
+            {
+              "year": 2024,
+              "value": 100,
+              "region": "中国",
+              "unit": "指数",
+              "statistical_scope": "离线结构测试同口径指数",
+              "source_id": "S01",
+              "is_forecast": false
+            },
+            {
+              "year": 2026,
+              "value": 144,
+              "region": "中国",
+              "unit": "指数",
+              "statistical_scope": "离线结构测试同口径指数",
+              "source_id": "S02",
+              "is_forecast": true
+            }
+          ],
+          "cagr": null
+        }
+      ],
+      "growth_stage": "growth",
+      "stage_rationale": "离线测试序列保持增长，最终阶段判断仍需真实渗透率和竞争证据。"
+    },
+    "customer_structure": {
+      "facts": ["离线样例按行业和企业规模划分客户。"],
+      "judgment": "优先客户需要同时具备高价值流程和足够数字化基础。",
+      "recommendations": ["先聚焦流程标准、数据可用且 ROI 可验证的企业客户。"],
+      "evidence_ids": ["S02"],
+      "counterpoints": ["高数字化客户也可能具有更强自研能力。"],
+      "unknowns": [],
+      "confidence": "medium",
+      "segmentation_dimensions": ["行业", "企业规模"],
+      "priority_segments": ["流程密集型大型企业"],
+      "roles": [
+        {
+          "role": "product_user",
+          "facts": ["产品使用者关注任务效率和易用性。"],
+          "judgment": "使用体验影响一线采纳。",
+          "recommendations": ["在试点中记录实际使用频次与人工接管率。"],
+          "evidence_ids": ["S02"],
+          "counterpoints": ["使用者通常不是预算决策者。"],
+          "unknowns": [],
+          "confidence": "medium"
+        },
+        {
+          "role": "business_owner",
+          "facts": ["业务负责人关注业务结果。"],
+          "judgment": "业务负责人决定场景优先级。",
+          "recommendations": ["将方案指标绑定业务目标。"],
+          "evidence_ids": ["S02"],
+          "counterpoints": ["跨部门项目的责任边界可能不清晰。"],
+          "unknowns": [],
+          "confidence": "medium"
+        },
+        {
+          "role": "technical_evaluator",
+          "facts": ["技术评估者关注安全、集成和稳定性。"],
+          "judgment": "技术门槛决定供应商能否进入候选名单。",
+          "recommendations": ["提供标准化安全与集成评测材料。"],
+          "evidence_ids": ["S01"],
+          "counterpoints": ["部分轻量场景的技术评审可能较弱。"],
+          "unknowns": [],
+          "confidence": "medium"
+        },
+        {
+          "role": "procurement_decider",
+          "facts": ["采购决策者关注价格、条款和供应商风险。"],
+          "judgment": "可比报价和风险控制影响最终选择。",
+          "recommendations": ["设计清晰的计价方式和服务边界。"],
+          "evidence_ids": ["S02"],
+          "counterpoints": ["战略项目可能绕过常规价格优先逻辑。"],
+          "unknowns": [],
+          "confidence": "low"
+        },
+        {
+          "role": "final_payer",
+          "facts": ["最终付费者关注总拥有成本和回报。"],
+          "judgment": "持续扩容取决于价值兑现。",
+          "recommendations": ["建立从试点到扩容的价值证明机制。"],
+          "evidence_ids": ["S02"],
+          "counterpoints": ["创新预算可能接受短期回报不确定。"],
+          "unknowns": [],
+          "confidence": "medium"
+        }
+      ]
+    },
+    "procurement_drivers": {
+      "facts": ["离线样例将 ROI 与合规作为采购驱动。"],
+      "judgment": "ROI 可验证性和合规能力共同影响供应商选择。",
+      "recommendations": ["销售材料应同时覆盖价值证明和风险审查。"],
+      "evidence_ids": ["S01", "S02"],
+      "counterpoints": ["不同客户对驱动因素的排序可能不同。"],
+      "unknowns": ["缺少可量化的客户问卷排序。"],
+      "confidence": "medium",
+      "ranked_drivers": [
+        {
+          "driver": "ROI 可验证性",
+          "priority": 1,
+          "rationale": "企业需要确认项目能够产生可衡量业务价值。"
+        },
+        {
+          "driver": "安全与合规",
+          "priority": 2,
+          "rationale": "企业级部署需要通过技术和风险审查。"
+        }
+      ]
+    }
+  },
+  "five_forces": {
+    "assessments": [
+      {
+        "force": "rivalry",
+        "pressure_score": 4,
+        "facts": ["离线样例证据显示多类厂商参与企业级 AI 服务竞争。"],
+        "judgment": "现有竞争压力较高。",
+        "recommendations": ["聚焦可验证场景并建立行业解决方案差异。"],
+        "evidence_ids": ["S02"],
+        "counterpoints": ["市场扩张可能暂时缓解零和竞争。"],
+        "unknowns": [],
+        "confidence": "medium",
+        "uncertainty": "缺少同口径市场份额数据。"
+      },
+      {
+        "force": "new_entrants",
+        "pressure_score": 3,
+        "facts": ["工具和模型能力降低了部分产品开发门槛。"],
+        "judgment": "进入压力中等，但企业交付仍有门槛。",
+        "recommendations": ["强化客户数据、交付经验和生态集成壁垒。"],
+        "evidence_ids": ["S01"],
+        "counterpoints": ["资本和渠道资源可能帮助新进入者快速扩张。"],
+        "unknowns": [],
+        "confidence": "medium",
+        "uncertainty": "新进入者数量和存活率缺少公开统计。"
+      },
+      {
+        "force": "substitutes",
+        "pressure_score": 4,
+        "facts": ["传统软件、人工流程和客户自研均可替代部分 Agent 功能。"],
+        "judgment": "替代压力较高。",
+        "recommendations": ["优先覆盖单点工具难以完成的跨系统任务。"],
+        "evidence_ids": ["S02"],
+        "counterpoints": ["复杂场景自研的持续成本可能较高。"],
+        "unknowns": [],
+        "confidence": "medium",
+        "uncertainty": "不同场景的替代弹性差异较大。"
+      },
+      {
+        "force": "supplier_power",
+        "pressure_score": 3,
+        "facts": ["上游模型与云资源影响产品成本和能力边界。"],
+        "judgment": "供应商议价压力中等。",
+        "recommendations": ["保持模型和基础设施的可替换设计。"],
+        "evidence_ids": ["S01"],
+        "counterpoints": ["规模采购可能提升平台方议价能力。"],
+        "unknowns": [],
+        "confidence": "low",
+        "uncertainty": "缺少上游成本占比数据。"
+      },
+      {
+        "force": "buyer_power",
+        "pressure_score": 4,
+        "facts": ["大型企业具备比价、定制和自研选择。"],
+        "judgment": "客户议价压力较高。",
+        "recommendations": ["用标准产品降低定制成本，并以效果数据降低比价同质化。"],
+        "evidence_ids": ["S02"],
+        "counterpoints": ["深度集成后客户切换成本可能上升。"],
+        "unknowns": [],
+        "confidence": "medium",
+        "uncertainty": "客户集中度和续费数据尚未披露。"
+      }
+    ]
+  },
+  "core_conclusions": [
+    {
+      "conclusion": "企业级 AI Agent 的优先机会在于价值可量化且合规边界清晰的流程。",
+      "evidence_ids": ["S01", "S02"],
+      "counterpoints": ["该结论仍需真实客户访谈验证。"],
+      "confidence": "medium"
+    }
+  ],
+  "strategic_implications": [
+    {
+      "action": "选择一个流程密集型行业开展可量化试点。",
+      "rationale": "集中资源验证 ROI、稳定性和采购路径。",
+      "evidence_ids": ["S01", "S02"],
+      "validation_step": "在 90 天内完成客户访谈、PoC 和价值复盘。",
+      "confidence": "medium"
+    }
+  ],
+  "unknowns": ["离线样例不是火山引擎正式研究结论。"]
+}
