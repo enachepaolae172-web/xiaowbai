@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from pydantic import ValidationError
-
 from src.conditional_models import (
     ConditionalAnalysisBundle,
     ConditionalAnalysisDraft,
@@ -12,7 +10,7 @@ from src.conditional_models import (
 )
 from src.models import ContentOrigin, EvidenceExtraction, EvidencePool, ModuleName, ResearchRequest
 from src.ports import ModelClient
-from src.research_model import ModelOutputValidationError
+from src.research_model import ModelOutputValidationError, generate_validated_model
 from src.strategy_models import RequiredStrategyAnalysis
 
 
@@ -31,17 +29,18 @@ class ConditionalAnalysisService:
             raise ValueError("evidence pool must contain at least one source")
         self._validate_extraction_ids(pool, extraction)
 
-        response = self.client.generate_json(
+        draft = generate_validated_model(
+            client=self.client,
             task="conditional_modules_and_action_plan",
             payload={
                 "request": request.model_dump(mode="json"),
                 "sources": [source.model_dump(mode="json") for source in pool.sources],
                 "extracted_evidence": extraction.model_dump(mode="json"),
                 "required_analysis": required.model_dump(mode="json"),
-                "response_schema": ConditionalAnalysisDraft.model_json_schema(),
             },
+            model_type=ConditionalAnalysisDraft,
+            error_label="条件模块输出",
         )
-        draft = self._validate_response(response.data)
         sources = {source.source_id: source for source in pool.sources}
         self._validate_known_ids(sources, draft)
         self._validate_action_plan_sources(sources, draft)
@@ -71,19 +70,6 @@ class ConditionalAnalysisService:
                 raise ModelOutputValidationError(
                     f"{item.source_id} 仅有搜索摘要，不能抽取为事实。"
                 )
-
-    @staticmethod
-    def _validate_response(data: dict) -> ConditionalAnalysisDraft:
-        try:
-            return ConditionalAnalysisDraft.model_validate(data)
-        except ValidationError as exc:
-            summaries = []
-            for error in exc.errors(include_input=False)[:8]:
-                location = ".".join(str(part) for part in error["loc"])
-                summaries.append(f"{location}: {error['msg']}")
-            raise ModelOutputValidationError(
-                "条件模块输出不符合结构约束：" + "; ".join(summaries)
-            ) from exc
 
     @staticmethod
     def _validate_known_ids(sources: dict, draft: ConditionalAnalysisDraft) -> None:

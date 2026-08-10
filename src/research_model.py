@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any, TypeVar
 
 from pydantic import BaseModel, ValidationError
@@ -28,30 +29,32 @@ class ResearchModelService:
         self.client = client
 
     def create_research_plan(self, request: ResearchRequest) -> ResearchPlan:
-        response = self.client.generate_json(
+        return generate_validated_model(
+            client=self.client,
             task="research_plan",
             payload={
                 "request": request.model_dump(mode="json"),
-                "response_schema": ResearchPlan.model_json_schema(),
             },
+            model_type=ResearchPlan,
+            error_label="研究计划",
         )
-        return _validate(ResearchPlan, response.data)
 
     def extract_evidence(self, pool: EvidencePool) -> EvidenceExtraction:
         if not pool.sources:
             raise ValueError("evidence pool must contain at least one source")
 
-        response = self.client.generate_json(
+        extraction = generate_validated_model(
+            client=self.client,
             task="evidence_extraction",
             payload={
                 "sources": [
                     source.model_dump(mode="json")
                     for source in pool.sources
                 ],
-                "response_schema": EvidenceExtraction.model_json_schema(),
             },
+            model_type=EvidenceExtraction,
+            error_label="证据抽取",
         )
-        extraction = _validate(EvidenceExtraction, response.data)
         self._validate_extraction_against_pool(pool, extraction)
         return extraction
 
@@ -83,7 +86,50 @@ class ResearchModelService:
                 )
 
 
-def _validate(model_type: type[ModelT], data: dict[str, Any]) -> ModelT:
+def generate_validated_model(
+    *,
+    client: ModelClient,
+    task: str,
+    payload: Mapping[str, Any],
+    model_type: type[ModelT],
+    error_label: str,
+) -> ModelT:
+    """Generate a model contract and make one bounded schema-only repair attempt."""
+
+    schema = model_type.model_json_schema()
+    response = client.generate_json(
+        task=task,
+        payload={**dict(payload), "response_schema": schema},
+    )
+    try:
+        return _validate(model_type, response.data, error_label=error_label)
+    except ModelOutputValidationError as first_error:
+        repaired = client.generate_json(
+            task=task,
+            payload={
+                "repair_instruction": (
+                    "Correct only the JSON structure. Preserve supported facts, source IDs, "
+                    "numbers, and uncertainty exactly; do not add new claims."
+                ),
+                "invalid_response": response.data,
+                "validation_errors": str(first_error),
+                "response_schema": schema,
+            },
+        )
+        try:
+            return _validate(model_type, repaired.data, error_label=error_label)
+        except ModelOutputValidationError as repaired_error:
+            raise ModelOutputValidationError(
+                f"{error_label}结构自动纠错失败：{repaired_error}"
+            ) from repaired_error
+
+
+def _validate(
+    model_type: type[ModelT],
+    data: dict[str, Any],
+    *,
+    error_label: str = "豆包 JSON",
+) -> ModelT:
     try:
         return model_type.model_validate(data)
     except ValidationError as exc:
@@ -92,5 +138,5 @@ def _validate(model_type: type[ModelT], data: dict[str, Any]) -> ModelT:
             location = ".".join(str(part) for part in error["loc"])
             summaries.append(f"{location}: {error['msg']}")
         raise ModelOutputValidationError(
-            "豆包 JSON 不符合结构约束：" + "; ".join(summaries)
+            f"{error_label}不符合结构约束：" + "; ".join(summaries)
         ) from exc

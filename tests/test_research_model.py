@@ -35,6 +35,21 @@ class FakeModelClient:
         return ModelResponse(data=self.responses[task], model="fake")
 
 
+class SequentialFakeModelClient:
+    def __init__(self, responses: list[dict[str, Any]]) -> None:
+        self.responses = responses
+        self.calls: list[tuple[str, dict[str, Any]]] = []
+
+    def generate_json(
+        self,
+        *,
+        task: str,
+        payload: dict[str, Any],
+    ) -> ModelResponse:
+        self.calls.append((task, payload))
+        return ModelResponse(data=self.responses[len(self.calls) - 1], model="fake")
+
+
 def request() -> ResearchRequest:
     return ResearchRequest(
         industry="企业级 AI Agent",
@@ -121,6 +136,27 @@ def test_extract_evidence_validates_all_source_ids() -> None:
     assert [item.source_id for item in result.items] == ["S01", "S02"]
     assert result.items[0].facts
     assert result.items[1].facts == []
+
+
+def test_extract_evidence_repairs_structurally_invalid_json_once() -> None:
+    invalid = load_sample("model_evidence_extraction.json")
+    invalid["items"][0]["facts"][0] = {
+        "AI Agent 事实被误写成字段名": {},
+        "explanatory_context": [],
+        "unknowns": [],
+    }
+    repaired = load_sample("model_evidence_extraction.json")
+    client = SequentialFakeModelClient([invalid, repaired])
+    service = ResearchModelService(client)
+
+    result = service.extract_evidence(evidence_pool())
+
+    assert result.items[0].facts
+    assert len(client.calls) == 2
+    repair_payload = client.calls[1][1]
+    assert "invalid_response" in repair_payload
+    assert "validation_errors" in repair_payload
+    assert "repair_instruction" in repair_payload
 
 
 def test_search_snippet_cannot_be_promoted_to_fact() -> None:

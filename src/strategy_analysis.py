@@ -4,12 +4,10 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
-from pydantic import ValidationError
-
 from src.metrics import compute_market_series_growth
 from src.models import ContentOrigin, EvidenceExtraction, EvidencePool, ResearchRequest
 from src.ports import ModelClient
-from src.research_model import ModelOutputValidationError
+from src.research_model import ModelOutputValidationError, generate_validated_model
 from src.strategy_models import (
     EvidenceBackedFinding,
     RequiredStrategyAnalysis,
@@ -32,16 +30,17 @@ class RequiredAnalysisService:
             raise ValueError("evidence pool must contain at least one source")
         self._validate_extraction_ids(pool, extraction)
 
-        response = self.client.generate_json(
+        analysis = generate_validated_model(
+            client=self.client,
             task="required_strategy_analysis",
             payload={
                 "request": request.model_dump(mode="json"),
                 "sources": [source.model_dump(mode="json") for source in pool.sources],
                 "extracted_evidence": extraction.model_dump(mode="json"),
-                "response_schema": RequiredStrategyAnalysis.model_json_schema(),
             },
+            model_type=RequiredStrategyAnalysis,
+            error_label="必选战略分析",
         )
-        analysis = self._validate_response(response.data)
         self._validate_market_period(request, analysis)
         self._validate_source_references(pool, analysis)
         self._compute_growth_metrics(analysis)
@@ -86,19 +85,6 @@ class RequiredAnalysisService:
             raise ModelOutputValidationError(
                 f"市场数据年份超出研究期间：{years}。"
             )
-
-    @staticmethod
-    def _validate_response(data: dict) -> RequiredStrategyAnalysis:
-        try:
-            return RequiredStrategyAnalysis.model_validate(data)
-        except ValidationError as exc:
-            summaries = []
-            for error in exc.errors(include_input=False)[:8]:
-                location = ".".join(str(part) for part in error["loc"])
-                summaries.append(f"{location}: {error['msg']}")
-            raise ModelOutputValidationError(
-                "必选战略分析不符合结构约束：" + "; ".join(summaries)
-            ) from exc
 
     @staticmethod
     def _validate_source_references(
