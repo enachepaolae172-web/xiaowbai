@@ -2,6 +2,8 @@
 
 简体中文 | [English](README.md)
 
+[在线演示](https://xiaowbai-strategy-agent.streamlit.app) | [v0.1.0 正式版本](https://github.com/enachepaolae172-web/xiaowbai/releases/tag/v0.1.0)
+
 一个证据优先的战略研究工作台：用户输入行业、地区、研究期间和战略问题后，系统搜索公开资料，运行 PEST、市场分析和波特五力，并按证据决定是否启用扩展模块，最终生成带 `[Sxx]` 引用、可复核的 Markdown 研究底稿。
 
 ![产品演示](docs/assets/demo.gif)

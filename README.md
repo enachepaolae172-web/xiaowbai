@@ -2,6 +2,8 @@
 
 [简体中文](README.zh-CN.md) | English
 
+[Live Demo](https://xiaowbai-strategy-agent.streamlit.app) | [v0.1.0 Release](https://github.com/enachepaolae172-web/xiaowbai/releases/tag/v0.1.0)
+
 An evidence-first strategy research workspace that turns a business question into a citable, reviewable Markdown report. It combines public-source retrieval, PEST, market analysis, Porter's Five Forces, evidence-gated extension modules, and a 30/60/90-day validation plan.
 
 ![Product walkthrough](docs/assets/demo.gif)
