@@ -18,7 +18,8 @@ def test_sample_mode_renders_complete_research_workspace() -> None:
     assert app.segmented_control[0].value == "样例模式"
     assert app.sidebar.subheader[0].value == "运行设置"
     assert button_by_label(app, "测试豆包连接").disabled
-    assert not button_by_label(app, "重新加载样例").disabled
+    assert not button_by_label(app, "恢复预置样例").disabled
+    assert any("样例报告已预加载" in item.value for item in app.caption)
     assert [item.label for item in app.tabs] == [
         "核心结论",
         "宏观与市场",
@@ -34,6 +35,15 @@ def test_sample_mode_renders_complete_research_workspace() -> None:
         "报告字符",
         "引用核验",
     ]
+
+
+def test_restoring_sample_shows_visible_confirmation() -> None:
+    app = AppTest.from_file(ROOT / "app.py").run(timeout=10)
+
+    button_by_label(app, "恢复预置样例").click().run(timeout=10)
+
+    assert not app.exception
+    assert any("预置样例已恢复" in item.value for item in app.success)
 
 
 def test_realtime_mode_requires_both_keys_before_research() -> None:

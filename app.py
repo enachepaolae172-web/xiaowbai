@@ -400,7 +400,7 @@ with st.form("research_parameters"):
     )
     missing_keys = is_realtime and (not doubao_api_key or not tavily_api_key)
     submitted = st.form_submit_button(
-        "开始研究" if is_realtime else "重新加载样例",
+        "开始研究" if is_realtime else "恢复预置样例",
         type="primary",
         disabled=missing_keys,
     )
@@ -409,11 +409,14 @@ if is_realtime and (not doubao_api_key or not tavily_api_key):
     st.info("实时模式需要豆包和 Tavily API Key。")
 elif is_realtime:
     st.caption("完整研究会多次调用搜索与模型，通常需要 1-3 分钟，请保持页面开启。")
+else:
+    st.caption("样例报告已预加载并显示在下方；此按钮用于恢复被实时研究替换的预置结果。")
 
 if submitted:
     if not is_realtime:
         st.session_state.research_result = sample_result
         st.session_state.result_mode = "样例模式"
+        st.success("预置样例已恢复，请向下查看研究结果。")
     else:
         try:
             request = ResearchRequest(
