@@ -5,7 +5,7 @@ from typing import Any
 
 import pytest
 
-from src.model_client import DoubaoTimeoutError
+from src.model_client import DoubaoTimeoutError, StructuredOutputError
 from src.models import ModelResponse, ResearchRequest, RunMode
 from src.pipeline import (
     InsufficientEvidenceError,
@@ -83,6 +83,30 @@ class ConditionalTimeoutModelClient(FakeModelClient):
     ) -> ModelResponse:
         if task == "conditional_modules_and_action_plan":
             raise DoubaoTimeoutError("扩展模块超时")
+        return super().generate_json(task=task, payload=payload)
+
+
+class PlanningInvalidJsonModelClient(FakeModelClient):
+    def generate_json(
+        self,
+        *,
+        task: str,
+        payload: dict[str, Any],
+    ) -> ModelResponse:
+        if task == "research_plan":
+            raise StructuredOutputError("连续两次未返回有效 JSON")
+        return super().generate_json(task=task, payload=payload)
+
+
+class EvidenceInvalidJsonModelClient(FakeModelClient):
+    def generate_json(
+        self,
+        *,
+        task: str,
+        payload: dict[str, Any],
+    ) -> ModelResponse:
+        if task == "evidence_extraction":
+            raise StructuredOutputError("连续两次未返回有效 JSON")
         return super().generate_json(task=task, payload=payload)
 
 
@@ -166,4 +190,36 @@ def test_pipeline_keeps_base_report_when_conditional_stage_times_out() -> None:
 
     assert "analyzing_fallback" in progress
     assert not result.conditional.enabled_modules
+    assert result.artifact.audit.is_valid
+
+
+def test_pipeline_uses_fixed_plan_when_planning_json_is_invalid() -> None:
+    progress: list[str] = []
+
+    result = ResearchPipeline(
+        PlanningInvalidJsonModelClient(),
+        FakeSearchClient(),
+    ).run(
+        realtime_request(),
+        progress=lambda stage, message: progress.append(stage),
+    )
+
+    assert "planning_fallback" in progress
+    assert len(result.plan.search_queries) == 4
+    assert result.artifact.audit.is_valid
+
+
+def test_pipeline_preserves_page_text_when_evidence_json_is_invalid() -> None:
+    progress: list[str] = []
+
+    result = ResearchPipeline(
+        EvidenceInvalidJsonModelClient(),
+        FakeSearchClient(),
+    ).run(
+        realtime_request(),
+        progress=lambda stage, message: progress.append(stage),
+    )
+
+    assert "evidence_fallback" in progress
+    assert all(item.facts for item in result.extraction.items)
     assert result.artifact.audit.is_valid

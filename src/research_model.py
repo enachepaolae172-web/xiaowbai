@@ -8,11 +8,16 @@ from typing import Any, TypeVar
 from pydantic import BaseModel, ValidationError
 
 from src.models import (
+    Confidence,
     ContentOrigin,
+    EvidenceFact,
     EvidenceExtraction,
     EvidencePool,
+    ResearchArea,
     ResearchPlan,
     ResearchRequest,
+    ResearchSubQuestion,
+    SourceEvidence,
 )
 from src.ports import ModelClient
 
@@ -84,6 +89,90 @@ class ResearchModelService:
                 raise ModelOutputValidationError(
                     f"{item.source_id} 只有搜索摘要，不能输出关键事实。"
                 )
+
+
+def fallback_research_plan(request: ResearchRequest) -> ResearchPlan:
+    """Build a bounded deterministic plan when model planning is unavailable."""
+
+    subject = request.target_company or request.industry
+    queries = [
+        f"{subject} {request.industry} 官方 产品 客户",
+        f"{request.region} {request.industry} 市场规模 增长",
+        f"{request.region} {request.industry} 竞争格局",
+        f"{request.region} {request.industry} 政策 监管",
+    ]
+    questions = [
+        ResearchSubQuestion(
+            area=ResearchArea.BUSINESS,
+            question=f"{subject}的核心业务、客户与差异化能力是什么？",
+            rationale="确认业务边界和客户价值，避免研究口径混淆。",
+            priority=5,
+            search_queries=[queries[0]],
+        ),
+        ResearchSubQuestion(
+            area=ResearchArea.MARKET,
+            question=f"{request.region}{request.industry}市场规模与增长阶段如何？",
+            rationale="市场容量、增速和阶段决定战略优先级。",
+            priority=5,
+            search_queries=[queries[1]],
+        ),
+        ResearchSubQuestion(
+            area=ResearchArea.INDUSTRY,
+            question=f"{request.industry}的竞争结构和主要替代方案是什么？",
+            rationale="识别竞争压力、进入壁垒和差异化空间。",
+            priority=4,
+            search_queries=[queries[2]],
+        ),
+        ResearchSubQuestion(
+            area=ResearchArea.RISK,
+            question=f"影响{request.industry}的政策、合规与宏观风险是什么？",
+            rationale="补充 PEST 和战略风险判断所需证据。",
+            priority=4,
+            search_queries=[queries[3]],
+        ),
+    ]
+    return ResearchPlan(
+        questions=questions,
+        search_queries=queries,
+        unknowns=["模型规划不可用，已采用程序预设问题树。"],
+    )
+
+
+def fallback_evidence_extraction(pool: EvidencePool) -> EvidenceExtraction:
+    """Preserve traceability by turning extracted page text into low-confidence facts."""
+
+    items: list[SourceEvidence] = []
+    for source in pool.sources:
+        excerpt = " ".join(source.excerpt.split())[:900]
+        if source.origin is ContentOrigin.SEARCH_SNIPPET:
+            items.append(
+                SourceEvidence(
+                    source_id=source.source_id,
+                    facts=[],
+                    explanatory_context=[excerpt],
+                    unknowns=["仅有搜索摘要，不能作为关键事实。"],
+                )
+            )
+            continue
+
+        items.append(
+            SourceEvidence(
+                source_id=source.source_id,
+                facts=[
+                    EvidenceFact(
+                        statement=f"原文摘录：{excerpt}",
+                        confidence=Confidence.LOW,
+                        time_scope=source.time_scope,
+                        region_scope=source.region_scope,
+                        unit=source.unit,
+                        statistical_scope=source.statistical_scope,
+                    )
+                ],
+                explanatory_context=[],
+                unknowns=["该事实由程序保留原文摘录，尚未经过模型归纳。"],
+            )
+        )
+    return EvidenceExtraction(items=items)
 
 
 def generate_validated_model(

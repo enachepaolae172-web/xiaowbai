@@ -26,7 +26,12 @@ from src.reporting import (
     audit_citations,
     report_character_count,
 )
-from src.research_model import ModelOutputValidationError, ResearchModelService
+from src.research_model import (
+    ModelOutputValidationError,
+    ResearchModelService,
+    fallback_evidence_extraction,
+    fallback_research_plan,
+)
 from src.strategy_analysis import RequiredAnalysisService
 from src.strategy_models import RequiredStrategyAnalysis
 
@@ -86,7 +91,15 @@ class ResearchPipeline:
         model_service = ResearchModelService(self.model_client)
 
         _notify(progress, "planning", "正在拆解战略问题并生成搜索词")
-        plan = model_service.create_research_plan(request)
+        try:
+            plan = model_service.create_research_plan(request)
+        except (DoubaoError, ModelOutputValidationError) as exc:
+            _notify(
+                progress,
+                "planning_fallback",
+                "模型规划格式异常，正在使用预设战略问题树",
+            )
+            plan = fallback_research_plan(request)
 
         _notify(progress, "searching", "正在搜索并提取公开资料原文")
         search_results = self.search_client.search(plan.search_queries)
@@ -105,7 +118,15 @@ class ResearchPipeline:
             raise InsufficientEvidenceError(
                 "证据不足：未提取到可支撑关键事实的网页正文，请调整问题后重试。"
             )
-        extraction = model_service.extract_evidence(pool)
+        try:
+            extraction = model_service.extract_evidence(pool)
+        except (DoubaoError, ModelOutputValidationError) as exc:
+            _notify(
+                progress,
+                "evidence_fallback",
+                "证据抽取格式异常，正在保留网页原文并继续分析",
+            )
+            extraction = fallback_evidence_extraction(pool)
 
         _notify(progress, "analyzing", "正在运行 PEST、市场、五力和条件模块")
         required = RequiredAnalysisService(self.model_client).analyze(
