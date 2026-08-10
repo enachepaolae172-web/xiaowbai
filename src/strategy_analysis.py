@@ -48,7 +48,7 @@ class RequiredAnalysisService:
             error_label="必选战略分析",
             normalizer=_split_mixed_market_series,
         )
-        self._validate_market_period(request, analysis)
+        self._filter_market_period(request, analysis)
         self._validate_source_references(pool, analysis)
         self._compute_growth_metrics(analysis)
         return analysis
@@ -75,23 +75,32 @@ class RequiredAnalysisService:
                 )
 
     @staticmethod
-    def _validate_market_period(
+    def _filter_market_period(
         request: ResearchRequest,
         analysis: RequiredStrategyAnalysis,
     ) -> None:
-        out_of_range = sorted(
-            {
-                point.year
-                for series in analysis.market.total_market.series
-                for point in series.points
-                if not request.start_year <= point.year <= request.end_year
-            }
-        )
-        if out_of_range:
-            years = ", ".join(str(year) for year in out_of_range)
-            raise ModelOutputValidationError(
-                f"市场数据年份超出研究期间：{years}。"
-            )
+        total_market = analysis.market.total_market
+        excluded_years: set[int] = set()
+        retained_series = []
+        for series in total_market.series:
+            retained_points = []
+            for point in series.points:
+                if request.start_year <= point.year <= request.end_year:
+                    retained_points.append(point)
+                else:
+                    excluded_years.add(point.year)
+            if retained_points:
+                series.points = retained_points
+                series.cagr = None
+                retained_series.append(series)
+
+        total_market.series = retained_series
+        if excluded_years and len(total_market.unknowns) < 8:
+            years = ", ".join(str(year) for year in sorted(excluded_years))
+            total_market.unknowns = [
+                *total_market.unknowns,
+                f"已排除研究期间 {request.start_year}-{request.end_year} 之外的市场数据：{years}。",
+            ]
 
     @staticmethod
     def _validate_source_references(

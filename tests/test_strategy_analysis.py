@@ -260,13 +260,17 @@ def test_service_rejects_fact_extracted_from_search_snippet() -> None:
         )
 
 
-def test_service_rejects_market_year_outside_request_period() -> None:
-    invalid = load_json("required_strategy_analysis.json")
-    invalid["market"]["total_market"]["series"][0]["points"][1]["year"] = 2027
-    service = RequiredAnalysisService(FakeModelClient(invalid))
+def test_service_filters_market_year_outside_request_period() -> None:
+    data = load_json("required_strategy_analysis.json")
+    data["market"]["total_market"]["series"][0]["points"][1]["year"] = 2027
+    service = RequiredAnalysisService(FakeModelClient(data))
 
-    with pytest.raises(ModelOutputValidationError, match="超出研究期间"):
-        service.analyze(request(), pool(), extraction())
+    analysis = service.analyze(request(), pool(), extraction())
+
+    series = analysis.market.total_market.series[0]
+    assert [point.year for point in series.points] == [2024]
+    assert series.cagr is None
+    assert any("2027" in item for item in analysis.market.total_market.unknowns)
 
 
 def test_service_rejects_unknown_source_reference() -> None:
