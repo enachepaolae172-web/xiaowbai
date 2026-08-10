@@ -30,8 +30,9 @@ and recommendations in their separate fields. Every supported judgment must cite
 state confidence, and include a counterpoint or uncertainty. Leave unsupported fields explicitly
 unknown. A force may use a 1-5 pressure_score only when facts, sources, rationale, uncertainty, and a
 strategic implication are present; otherwise use null. Market data points must include year, region,
-unit, statistical scope, forecast status, and source_id. Set every cagr field to null because the
-application calculates CAGR deterministically. Do not invent survey percentages. Match the supplied
+unit, statistical scope, forecast status, and source_id. Prefer at least two comparable years per market
+series; when only one reliable point exists, return that point rather than inventing a trend. Set every
+cagr field to null because the application calculates CAGR deterministically. Do not invent survey percentages. Match the supplied
 JSON schema exactly.""",
     "conditional_modules_and_action_plan": """Assess all five extension modules and return one evidence
 profile for each: concentration, value chain, key success factors, lifecycle, and innovation-price-share.

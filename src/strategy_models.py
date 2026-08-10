@@ -137,7 +137,7 @@ class MarketDataPoint(StrictModel):
 
 class MarketSeries(StrictModel):
     metric_name: ShortText
-    points: list[MarketDataPoint] = Field(min_length=2, max_length=20)
+    points: list[MarketDataPoint] = Field(min_length=1, max_length=20)
     cagr: ComputedGrowth | None = None
 
     @model_validator(mode="after")

@@ -125,8 +125,16 @@ class RequiredAnalysisService:
 
     @staticmethod
     def _compute_growth_metrics(analysis: RequiredStrategyAnalysis) -> None:
-        for series in analysis.market.total_market.series:
-            series.cagr = compute_market_series_growth(series)
+        total_market = analysis.market.total_market
+        for series in total_market.series:
+            if len(series.points) >= 2:
+                series.cagr = compute_market_series_growth(series)
+                continue
+
+            series.cagr = None
+            note = f"{series.metric_name}仅有单期数据，无法计算 CAGR 或判断趋势。"
+            if note not in total_market.unknowns and len(total_market.unknowns) < 8:
+                total_market.unknowns = [*total_market.unknowns, note]
 
 
 def _analysis_findings(

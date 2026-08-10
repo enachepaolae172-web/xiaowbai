@@ -176,6 +176,21 @@ def test_market_series_rejects_zero_start_value() -> None:
         RequiredStrategyAnalysis.model_validate(invalid)
 
 
+def test_single_point_market_series_is_kept_without_cagr() -> None:
+    data = load_json("required_strategy_analysis.json")
+    data["market"]["total_market"]["series"][0]["points"] = data["market"][
+        "total_market"
+    ]["series"][0]["points"][:1]
+    service = RequiredAnalysisService(FakeModelClient(data))
+
+    analysis = service.analyze(request(), pool(), extraction())
+
+    series = analysis.market.total_market.series[0]
+    assert len(series.points) == 1
+    assert series.cagr is None
+    assert any("单期数据" in item for item in analysis.market.total_market.unknowns)
+
+
 def test_service_calculates_cagr_and_sends_schema() -> None:
     client = FakeModelClient(load_json("required_strategy_analysis.json"))
     service = RequiredAnalysisService(client)

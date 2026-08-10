@@ -163,6 +163,8 @@ class MarkdownReportRenderer:
                     f"- 程序计算 CAGR（{series.cagr.start_year}–{series.cagr.end_year}）："
                     f"{series.cagr.cagr_percent:.2f}% {_citations(source_ids)}"
                 )
+            elif len(series.points) == 1:
+                lines.append("- 趋势：仅有单期同口径数据，无法计算 CAGR 或判断变化方向。")
 
         customer = market.customer_structure
         lines.extend(
