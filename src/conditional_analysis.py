@@ -10,7 +10,11 @@ from src.conditional_models import (
 )
 from src.models import ContentOrigin, EvidenceExtraction, EvidencePool, ModuleName, ResearchRequest
 from src.ports import ModelClient
-from src.research_model import ModelOutputValidationError, generate_validated_model
+from src.research_model import (
+    ModelOutputValidationError,
+    compact_source_registry,
+    generate_validated_model,
+)
 from src.strategy_models import RequiredStrategyAnalysis
 
 
@@ -34,7 +38,7 @@ class ConditionalAnalysisService:
             task="conditional_modules_and_action_plan",
             payload={
                 "request": request.model_dump(mode="json"),
-                "sources": [source.model_dump(mode="json") for source in pool.sources],
+                "source_registry": compact_source_registry(pool),
                 "extracted_evidence": extraction.model_dump(mode="json"),
                 "required_analysis": required.model_dump(mode="json"),
             },

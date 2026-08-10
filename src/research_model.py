@@ -124,6 +124,18 @@ def generate_validated_model(
             ) from repaired_error
 
 
+def compact_source_registry(pool: EvidencePool) -> list[dict[str, Any]]:
+    """Return source metadata for downstream analysis without resending excerpts."""
+
+    return [
+        source.model_dump(
+            mode="json",
+            exclude={"excerpt", "used_in"},
+        )
+        for source in pool.sources
+    ]
+
+
 def _validate(
     model_type: type[ModelT],
     data: dict[str, Any],

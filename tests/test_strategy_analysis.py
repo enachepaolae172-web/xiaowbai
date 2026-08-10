@@ -202,6 +202,11 @@ def test_service_calculates_cagr_and_sends_schema() -> None:
     assert growth.cagr_percent == pytest.approx(20.0)
     assert client.calls[0][0] == "required_strategy_analysis"
     assert "response_schema" in client.calls[0][1]
+    assert "sources" not in client.calls[0][1]
+    assert all(
+        "excerpt" not in source
+        for source in client.calls[0][1]["source_registry"]
+    )
     assert analysis.pest.assessments[0].facts
     assert analysis.pest.assessments[0].judgment
     assert analysis.pest.assessments[0].recommendations

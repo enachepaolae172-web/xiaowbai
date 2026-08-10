@@ -145,6 +145,11 @@ def test_service_enables_only_evidence_qualified_modules() -> None:
     )
     assert client.calls[0][0] == "conditional_modules_and_action_plan"
     assert "response_schema" in client.calls[0][1]
+    assert "sources" not in client.calls[0][1]
+    assert all(
+        "excerpt" not in source
+        for source in client.calls[0][1]["source_registry"]
+    )
 
 
 def test_ineligible_model_output_is_discarded() -> None:

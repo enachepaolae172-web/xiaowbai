@@ -7,7 +7,11 @@ from collections.abc import Iterable
 from src.metrics import compute_market_series_growth
 from src.models import ContentOrigin, EvidenceExtraction, EvidencePool, ResearchRequest
 from src.ports import ModelClient
-from src.research_model import ModelOutputValidationError, generate_validated_model
+from src.research_model import (
+    ModelOutputValidationError,
+    compact_source_registry,
+    generate_validated_model,
+)
 from src.strategy_models import (
     EvidenceBackedFinding,
     RequiredStrategyAnalysis,
@@ -35,7 +39,7 @@ class RequiredAnalysisService:
             task="required_strategy_analysis",
             payload={
                 "request": request.model_dump(mode="json"),
-                "sources": [source.model_dump(mode="json") for source in pool.sources],
+                "source_registry": compact_source_registry(pool),
                 "extracted_evidence": extraction.model_dump(mode="json"),
             },
             model_type=RequiredStrategyAnalysis,

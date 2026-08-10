@@ -25,7 +25,8 @@ Keep each source_id unchanged. Put directly supported statements in facts, inter
 background in explanatory_context, and missing scope or unresolved issues in unknowns. A source with
 origin search_snippet must have an empty facts list. Return one item for every supplied source and
 match the provided JSON schema exactly.""",
-    "required_strategy_analysis": """Using only the supplied extracted evidence, complete all mandatory
+    "required_strategy_analysis": """Using only the supplied extracted evidence and source registry,
+complete all mandatory
 strategy modules: all four PEST dimensions; total market, growth stage, customer structure, all five
 customer decision roles, and procurement drivers; and all five Porter forces. Keep facts, judgments,
 and recommendations in their separate fields. Every supported judgment must cite full-text source IDs,
