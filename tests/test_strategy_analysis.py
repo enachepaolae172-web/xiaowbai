@@ -168,6 +168,24 @@ def test_market_series_rejects_mixed_statistical_scope() -> None:
         RequiredStrategyAnalysis.model_validate(invalid)
 
 
+def test_service_splits_mixed_market_scope_into_comparable_series() -> None:
+    data = load_json("required_strategy_analysis.json")
+    points = data["market"]["total_market"]["series"][0]["points"]
+    points[1]["region"] = "全球"
+    points[1]["unit"] = "亿美元"
+    points[1]["statistical_scope"] = "全球企业级 AI Agent 收入"
+    client = FakeModelClient(data)
+    service = RequiredAnalysisService(client)
+
+    analysis = service.analyze(request(), pool(), extraction())
+
+    series = analysis.market.total_market.series
+    assert len(series) == 2
+    assert all(len(item.points) == 1 for item in series)
+    assert all(item.cagr is None for item in series)
+    assert len(client.calls) == 1
+
+
 def test_market_series_rejects_zero_start_value() -> None:
     invalid = load_json("required_strategy_analysis.json")
     invalid["market"]["total_market"]["series"][0]["points"][0]["value"] = 0

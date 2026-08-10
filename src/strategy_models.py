@@ -157,7 +157,7 @@ class MarketSeries(StrictModel):
 
 
 class MarketTotalAssessment(EvidenceBackedFinding):
-    series: list[MarketSeries] = Field(default_factory=list, max_length=5)
+    series: list[MarketSeries] = Field(default_factory=list, max_length=15)
     growth_stage: GrowthStage
     stage_rationale: LongText
 

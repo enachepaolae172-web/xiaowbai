@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from typing import Any, TypeVar
 
 from pydantic import BaseModel, ValidationError
@@ -93,6 +93,7 @@ def generate_validated_model(
     payload: Mapping[str, Any],
     model_type: type[ModelT],
     error_label: str,
+    normalizer: Callable[[dict[str, Any]], dict[str, Any]] | None = None,
 ) -> ModelT:
     """Generate a model contract and make one bounded schema-only repair attempt."""
 
@@ -101,8 +102,9 @@ def generate_validated_model(
         task=task,
         payload={**dict(payload), "response_schema": schema},
     )
+    normalized = normalizer(response.data) if normalizer else response.data
     try:
-        return _validate(model_type, response.data, error_label=error_label)
+        return _validate(model_type, normalized, error_label=error_label)
     except ModelOutputValidationError as first_error:
         repaired = client.generate_json(
             task=task,
@@ -111,13 +113,14 @@ def generate_validated_model(
                     "Correct only the JSON structure. Preserve supported facts, source IDs, "
                     "numbers, and uncertainty exactly; do not add new claims."
                 ),
-                "invalid_response": response.data,
+                "invalid_response": normalized,
                 "validation_errors": str(first_error),
                 "response_schema": schema,
             },
         )
+        normalized_repair = normalizer(repaired.data) if normalizer else repaired.data
         try:
-            return _validate(model_type, repaired.data, error_label=error_label)
+            return _validate(model_type, normalized_repair, error_label=error_label)
         except ModelOutputValidationError as repaired_error:
             raise ModelOutputValidationError(
                 f"{error_label}结构自动纠错失败：{repaired_error}"

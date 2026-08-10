@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from collections.abc import Iterable
+from typing import Any
 
 from src.metrics import compute_market_series_growth
 from src.models import ContentOrigin, EvidenceExtraction, EvidencePool, ResearchRequest
@@ -44,6 +46,7 @@ class RequiredAnalysisService:
             },
             model_type=RequiredStrategyAnalysis,
             error_label="必选战略分析",
+            normalizer=_split_mixed_market_series,
         )
         self._validate_market_period(request, analysis)
         self._validate_source_references(pool, analysis)
@@ -150,3 +153,55 @@ def _analysis_evidence_ids(
         yield from conclusion.evidence_ids
     for implication in analysis.strategic_implications:
         yield from implication.evidence_ids
+
+
+def _split_mixed_market_series(data: dict[str, Any]) -> dict[str, Any]:
+    """Split market points by comparable region, unit, and statistical scope."""
+
+    normalized = deepcopy(data)
+    try:
+        total_market = normalized["market"]["total_market"]
+        series_items = total_market["series"]
+    except (KeyError, TypeError):
+        return normalized
+    if not isinstance(series_items, list):
+        return normalized
+
+    split_series: list[dict[str, Any]] = []
+    for series in series_items:
+        if not isinstance(series, dict) or not isinstance(series.get("points"), list):
+            split_series.append(series)
+            continue
+
+        groups: dict[tuple[str, str, str], list[dict[str, Any]]] = {}
+        for point in series["points"]:
+            if not isinstance(point, dict):
+                groups.setdefault(("", "", ""), []).append(point)
+                continue
+            key = tuple(
+                str(point.get(field, "")).strip()
+                for field in ("region", "unit", "statistical_scope")
+            )
+            groups.setdefault(key, []).append(point)
+
+        for key, points in groups.items():
+            item = deepcopy(series)
+            item["points"] = sorted(
+                points,
+                key=lambda point: point.get("year", 0) if isinstance(point, dict) else 0,
+            )
+            item["cagr"] = None
+            if len(groups) > 1:
+                scope = "｜".join(value or "未注明" for value in key)
+                item["metric_name"] = f"{series.get('metric_name', '市场指标')}（{scope}）"[:500]
+            split_series.append(item)
+
+    if len(split_series) > 15:
+        unknowns = total_market.get("unknowns")
+        if isinstance(unknowns, list) and len(unknowns) < 8:
+            unknowns.append(
+                f"市场数据包含 {len(split_series)} 个不同统计口径，仅保留前 15 个。"
+            )
+        split_series = split_series[:15]
+    total_market["series"] = split_series
+    return normalized
