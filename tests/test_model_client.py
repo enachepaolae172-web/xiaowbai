@@ -5,7 +5,11 @@ import httpx
 import pytest
 from openai import APITimeoutError, AuthenticationError, RateLimitError
 
-from src.config import DEFAULT_MODEL_MAX_TOKENS
+from src.config import (
+    DEFAULT_MODEL_MAX_RETRIES,
+    DEFAULT_MODEL_MAX_TOKENS,
+    DEFAULT_MODEL_TIMEOUT,
+)
 from src.model_client import (
     DoubaoAuthenticationError,
     DoubaoModelClient,
@@ -155,5 +159,10 @@ def test_timeout_error_is_mapped() -> None:
     request = httpx.Request("POST", "https://ark.example.test/chat")
     client = DoubaoModelClient(client=FakeOpenAI([APITimeoutError(request=request)]))
 
-    with pytest.raises(DoubaoTimeoutError, match="超时"):
+    with pytest.raises(DoubaoTimeoutError, match="180 秒"):
         client.generate_json(task="connection_test", payload={})
+
+
+def test_default_model_settings_allow_long_research_calls() -> None:
+    assert DEFAULT_MODEL_TIMEOUT == 180.0
+    assert DEFAULT_MODEL_MAX_RETRIES == 1

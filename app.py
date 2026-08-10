@@ -407,6 +407,8 @@ with st.form("research_parameters"):
 
 if is_realtime and (not doubao_api_key or not tavily_api_key):
     st.info("实时模式需要豆包和 Tavily API Key。")
+elif is_realtime:
+    st.caption("完整研究会多次调用搜索与模型，通常需要 1-3 分钟，请保持页面开启。")
 
 if submitted:
     if not is_realtime:

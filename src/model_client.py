@@ -97,6 +97,7 @@ class DoubaoModelClient:
             max_retries=max_retries,
         )
         self.model = model.strip()
+        self.timeout = timeout
         self.max_tokens = max_tokens
         self.diagnostics = ModelDiagnostics()
 
@@ -191,9 +192,14 @@ class DoubaoModelClient:
             raise DoubaoRateLimitError(
                 "豆包请求达到限流或额度上限，请稍后重试并检查账户额度。"
             ) from exc
-        except (APITimeoutError, APIConnectionError) as exc:
+        except APITimeoutError as exc:
             raise DoubaoTimeoutError(
-                "豆包连接超时或网络不可用，请检查网络后重试。"
+                f"豆包生成研究内容超过 {self.timeout:g} 秒。长任务可能需要 1-3 分钟，"
+                "请稍后重试；若持续出现，请缩短研究问题。"
+            ) from exc
+        except APIConnectionError as exc:
+            raise DoubaoTimeoutError(
+                "无法连接豆包服务，请检查网络或代理设置后重试。"
             ) from exc
         except APIStatusError as exc:
             raise DoubaoServiceError(
