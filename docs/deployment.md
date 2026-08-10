@@ -9,7 +9,7 @@
 5. Create a release from `CHANGELOG.md` and attach no credential-bearing files.
 
 ```powershell
-git remote add origin https://github.com/<account>/<repository>.git
+git remote add origin https://github.com/enachepaolae172-web/xiaowbai.git
 git push -u origin main
 git push origin v0.1.0
 ```

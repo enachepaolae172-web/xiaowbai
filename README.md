@@ -50,7 +50,7 @@ The application uses plain Python orchestration with Pydantic contracts. It does
 Requirements: Python 3.12.
 
 ```powershell
-git clone <your-repository-url>
+git clone https://github.com/enachepaolae172-web/xiaowbai.git
 cd enterprise-ai-strategy-agent
 py -3.12 -m venv .venv
 .venv\Scripts\Activate.ps1
