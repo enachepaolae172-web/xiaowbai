@@ -69,9 +69,7 @@ def test_doubao_client_satisfies_model_protocol_and_tracks_usage() -> None:
     assert client.diagnostics.api_calls == 1
     assert client.diagnostics.input_tokens == 10
     assert fake.completions.calls[0]["response_format"] == {"type": "json_object"}
-    assert fake.completions.calls[0]["extra_body"] == {
-        "thinking": {"type": "disabled"}
-    }
+    assert "extra_body" not in fake.completions.calls[0]
     assert fake.completions.calls[0]["max_tokens"] == DEFAULT_MODEL_MAX_TOKENS
 
 

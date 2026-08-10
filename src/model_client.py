@@ -180,7 +180,6 @@ class DoubaoModelClient:
                 model=self.model,
                 messages=list(messages),
                 response_format={"type": "json_object"},
-                extra_body={"thinking": {"type": "disabled"}},
                 temperature=0,
                 max_tokens=self.max_tokens,
             )
