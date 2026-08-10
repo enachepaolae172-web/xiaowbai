@@ -25,18 +25,21 @@ Keep each source_id unchanged. Put directly supported statements in facts, inter
 background in explanatory_context, and missing scope or unresolved issues in unknowns. A source with
 origin search_snippet must have an empty facts list. Return one item for every supplied source and
 match the provided JSON schema exactly.""",
-    "required_strategy_analysis": """Using only the supplied extracted evidence and source registry,
-complete all mandatory
-strategy modules: all four PEST dimensions; total market, growth stage, customer structure, all five
-customer decision roles, and procurement drivers; and all five Porter forces. Keep facts, judgments,
-and recommendations in their separate fields. Every supported judgment must cite full-text source IDs,
-state confidence, and include a counterpoint or uncertainty. Leave unsupported fields explicitly
-unknown. A force may use a 1-5 pressure_score only when facts, sources, rationale, uncertainty, and a
-strategic implication are present; otherwise use null. Market data points must include year, region,
-unit, statistical scope, forecast status, and source_id. Prefer at least two comparable years per market
-series; when only one reliable point exists, return that point rather than inventing a trend. Set every
-cagr field to null because the application calculates CAGR deterministically. Do not invent survey percentages. Match the supplied
-JSON schema exactly.""",
+    "required_pest_analysis": """Using only the supplied extracted evidence and source registry,
+complete all four PEST dimensions. Keep facts, judgments, recommendations, counterpoints, unknowns,
+and confidence separate. Every supported judgment must cite full-text source IDs. Leave unsupported
+dimensions explicitly unknown. Be concise and match the supplied JSON schema exactly.""",
+    "required_market_analysis": """Using only the supplied extracted evidence and source registry,
+analyze total market and growth stage, customer structure, all five customer decision roles, and
+procurement drivers. Every supported judgment must cite full-text source IDs and include uncertainty.
+Market points must include year, region, unit, statistical scope, forecast status, and source_id. Never
+invent a number or trend. Set every cagr field to null because the application calculates it. Be concise
+and match the supplied JSON schema exactly.""",
+    "required_five_forces_analysis": """Using only the supplied extracted evidence and source registry,
+complete all five Porter forces. Keep facts, judgments, recommendations, counterpoints, unknowns, and
+confidence separate. Use a 1-5 pressure score only when full-text evidence, rationale, uncertainty, and
+strategic implication are present; otherwise use null. Be concise and match the supplied JSON schema
+exactly.""",
     "conditional_modules_and_action_plan": """Assess all five extension modules and return one evidence
 profile for each: concentration, value chain, key success factors, lifecycle, and innovation-price-share.
 Counts and booleans in a profile must be supported by the cited full-text sources. Provide an analysis
@@ -46,6 +49,17 @@ product direction, channel direction, value-chain position, and exactly three va
 30, 60, and 90. Recommendations are analytical hypotheses, not facts, and each must include source IDs,
 confidence, rationale, and a measurable validation step. Never use search snippets as supporting evidence.
 Match the supplied JSON schema exactly.""",
+}
+
+
+TASK_MAX_TOKENS = {
+    "connection_test": 64,
+    "research_plan": 1500,
+    "evidence_extraction": 3500,
+    "required_pest_analysis": 1800,
+    "required_market_analysis": 4000,
+    "required_five_forces_analysis": 2500,
+    "conditional_modules_and_action_plan": 3500,
 }
 
 
@@ -59,3 +73,9 @@ def instruction_for(task: str) -> str:
         return TASK_INSTRUCTIONS[task]
     except KeyError as exc:
         raise ValueError(f"unsupported model task: {task}") from exc
+
+
+def max_tokens_for(task: str, configured_limit: int) -> int:
+    """Keep each structured task bounded even when the client limit is larger."""
+
+    return min(configured_limit, TASK_MAX_TOKENS[task])

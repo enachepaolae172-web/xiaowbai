@@ -11,6 +11,7 @@ from typing import Any
 from src.conditional_analysis import ConditionalAnalysisService
 from src.conditional_models import ConditionalAnalysisBundle
 from src.evidence import EvidencePoolBuilder
+from src.model_client import DoubaoError
 from src.models import (
     EvidenceExtraction,
     EvidencePool,
@@ -25,7 +26,7 @@ from src.reporting import (
     audit_citations,
     report_character_count,
 )
-from src.research_model import ResearchModelService
+from src.research_model import ModelOutputValidationError, ResearchModelService
 from src.strategy_analysis import RequiredAnalysisService
 from src.strategy_models import RequiredStrategyAnalysis
 
@@ -112,12 +113,21 @@ class ResearchPipeline:
             pool,
             extraction,
         )
-        conditional = ConditionalAnalysisService(self.model_client).analyze(
-            request,
-            pool,
-            extraction,
-            required,
-        )
+        conditional_service = ConditionalAnalysisService(self.model_client)
+        try:
+            conditional = conditional_service.analyze(
+                request,
+                pool,
+                extraction,
+                required,
+            )
+        except (DoubaoError, ModelOutputValidationError) as exc:
+            _notify(
+                progress,
+                "analyzing_fallback",
+                "扩展模块未完成，正在保留基础报告并生成 90 天验证计划",
+            )
+            conditional = conditional_service.fallback(required, reason=str(exc))
 
         _notify(progress, "verifying", "正在核验引用并生成 Markdown 报告")
         artifact = self.renderer.render(request, pool, required, conditional)

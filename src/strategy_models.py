@@ -253,6 +253,24 @@ class FiveForcesAnalysis(StrictModel):
         return self
 
 
+class PestModuleOutput(StrictModel):
+    """Bounded model output for the PEST stage."""
+
+    pest: PestAnalysis
+
+
+class MarketModuleOutput(StrictModel):
+    """Bounded model output for the market and customer stage."""
+
+    market: MarketAnalysis
+
+
+class FiveForcesModuleOutput(StrictModel):
+    """Bounded model output for the five-forces stage."""
+
+    five_forces: FiveForcesAnalysis
+
+
 class StrategicConclusion(StrictModel):
     conclusion: LongText
     evidence_ids: list[SourceId] = Field(min_length=1, max_length=15)

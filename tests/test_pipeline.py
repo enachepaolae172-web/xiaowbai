@@ -5,6 +5,7 @@ from typing import Any
 
 import pytest
 
+from src.model_client import DoubaoTimeoutError
 from src.models import ModelResponse, ResearchRequest, RunMode
 from src.pipeline import (
     InsufficientEvidenceError,
@@ -25,11 +26,20 @@ class FakeModelClient:
         self.responses = {
             "research_plan": load_json("model_research_plan.json"),
             "evidence_extraction": load_json("model_evidence_extraction.json"),
-            "required_strategy_analysis": load_json("required_strategy_analysis.json"),
             "conditional_modules_and_action_plan": load_json(
                 "conditional_analysis.json"
             ),
         }
+        required = load_json("required_strategy_analysis.json")
+        self.responses.update(
+            {
+                "required_pest_analysis": {"pest": required["pest"]},
+                "required_market_analysis": {"market": required["market"]},
+                "required_five_forces_analysis": {
+                    "five_forces": required["five_forces"]
+                },
+            }
+        )
         self.calls: list[str] = []
         self.diagnostics = SimpleNamespace(
             api_calls=0,
@@ -62,6 +72,18 @@ class FakeSearchClient:
 
     def extract(self, urls):
         return self.extract_results
+
+
+class ConditionalTimeoutModelClient(FakeModelClient):
+    def generate_json(
+        self,
+        *,
+        task: str,
+        payload: dict[str, Any],
+    ) -> ModelResponse:
+        if task == "conditional_modules_and_action_plan":
+            raise DoubaoTimeoutError("扩展模块超时")
+        return super().generate_json(task=task, payload=payload)
 
 
 def realtime_request() -> ResearchRequest:
@@ -98,7 +120,9 @@ def test_realtime_pipeline_runs_fixed_workflow_and_reports_usage() -> None:
     assert model.calls == [
         "research_plan",
         "evidence_extraction",
-        "required_strategy_analysis",
+        "required_pest_analysis",
+        "required_market_analysis",
+        "required_five_forces_analysis",
         "conditional_modules_and_action_plan",
     ]
     assert progress == [
@@ -112,8 +136,8 @@ def test_realtime_pipeline_runs_fixed_workflow_and_reports_usage() -> None:
     ]
     assert search.queries == result.plan.search_queries
     assert result.artifact.audit.is_valid
-    assert result.model_calls == 4
-    assert result.model_tokens == 600
+    assert result.model_calls == 6
+    assert result.model_tokens == 900
     assert result.search_queries == len(result.plan.search_queries)
     assert not hasattr(result, "api_key")
 
@@ -127,3 +151,19 @@ def test_pipeline_stops_when_no_full_text_source_is_available() -> None:
         )
 
     assert model.calls == ["research_plan"]
+
+
+def test_pipeline_keeps_base_report_when_conditional_stage_times_out() -> None:
+    progress: list[str] = []
+
+    result = ResearchPipeline(
+        ConditionalTimeoutModelClient(),
+        FakeSearchClient(),
+    ).run(
+        realtime_request(),
+        progress=lambda stage, message: progress.append(stage),
+    )
+
+    assert "analyzing_fallback" in progress
+    assert not result.conditional.enabled_modules
+    assert result.artifact.audit.is_valid

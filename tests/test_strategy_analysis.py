@@ -16,6 +16,7 @@ from src.models import (
     SourceRecord,
     SourceTier,
 )
+from src.model_client import DoubaoTimeoutError
 from src.research_model import ModelOutputValidationError
 from src.strategy_analysis import RequiredAnalysisService
 from src.strategy_models import (
@@ -88,7 +89,27 @@ class FakeModelClient:
         payload: dict[str, Any],
     ) -> ModelResponse:
         self.calls.append((task, payload))
-        return ModelResponse(data=self.response, model="fake")
+        if task == "required_pest_analysis":
+            data = {"pest": self.response["pest"]}
+        elif task == "required_market_analysis":
+            data = {"market": self.response["market"]}
+        elif task == "required_five_forces_analysis":
+            data = {"five_forces": self.response["five_forces"]}
+        else:
+            raise ValueError(f"unexpected task: {task}")
+        return ModelResponse(data=data, model="fake")
+
+
+class MarketTimeoutModelClient(FakeModelClient):
+    def generate_json(
+        self,
+        *,
+        task: str,
+        payload: dict[str, Any],
+    ) -> ModelResponse:
+        if task == "required_market_analysis":
+            raise DoubaoTimeoutError("市场模块超时")
+        return super().generate_json(task=task, payload=payload)
 
 
 def test_offline_required_analysis_fixture_is_valid() -> None:
@@ -183,7 +204,7 @@ def test_service_splits_mixed_market_scope_into_comparable_series() -> None:
     assert len(series) == 2
     assert all(len(item.points) == 1 for item in series)
     assert all(item.cagr is None for item in series)
-    assert len(client.calls) == 1
+    assert len(client.calls) == 3
 
 
 def test_market_series_rejects_zero_start_value() -> None:
@@ -218,9 +239,13 @@ def test_service_calculates_cagr_and_sends_schema() -> None:
     growth = analysis.market.total_market.series[0].cagr
     assert growth is not None
     assert growth.cagr_percent == pytest.approx(20.0)
-    assert client.calls[0][0] == "required_strategy_analysis"
-    assert "response_schema" in client.calls[0][1]
-    assert "sources" not in client.calls[0][1]
+    assert [call[0] for call in client.calls] == [
+        "required_pest_analysis",
+        "required_market_analysis",
+        "required_five_forces_analysis",
+    ]
+    assert all("response_schema" in call[1] for call in client.calls)
+    assert all("sources" not in call[1] for call in client.calls)
     assert all(
         "excerpt" not in source
         for source in client.calls[0][1]["source_registry"]
@@ -275,7 +300,7 @@ def test_service_filters_market_year_outside_request_period() -> None:
 
 def test_service_rejects_unknown_source_reference() -> None:
     invalid = load_json("required_strategy_analysis.json")
-    invalid["strategic_implications"][0]["evidence_ids"] = ["S99"]
+    invalid["market"]["customer_structure"]["evidence_ids"] = ["S99"]
     service = RequiredAnalysisService(FakeModelClient(invalid))
 
     with pytest.raises(ModelOutputValidationError, match="未知来源"):
@@ -293,10 +318,25 @@ def test_service_rejects_incomplete_extraction_before_model_call() -> None:
     assert not client.calls
 
 
-def test_service_wraps_invalid_model_structure() -> None:
+def test_service_degrades_invalid_module_structure_without_losing_report() -> None:
     invalid = load_json("required_strategy_analysis.json")
     invalid["five_forces"]["assessments"] = invalid["five_forces"]["assessments"][:4]
     service = RequiredAnalysisService(FakeModelClient(invalid))
 
-    with pytest.raises(ModelOutputValidationError, match="结构约束"):
-        service.analyze(request(), pool(), extraction())
+    analysis = service.analyze(request(), pool(), extraction())
+
+    assert len(analysis.five_forces.assessments) == 5
+    assert all(item.pressure_score is None for item in analysis.five_forces.assessments)
+    assert any("五力模块已降级" in item for item in analysis.unknowns)
+
+
+def test_service_degrades_timed_out_market_module_without_losing_report() -> None:
+    service = RequiredAnalysisService(
+        MarketTimeoutModelClient(load_json("required_strategy_analysis.json"))
+    )
+
+    analysis = service.analyze(request(), pool(), extraction())
+
+    assert analysis.market.total_market.growth_stage.value == "unknown"
+    assert not analysis.market.total_market.series
+    assert any("市场模块已降级" in item for item in analysis.unknowns)

@@ -5,10 +5,21 @@ from __future__ import annotations
 from src.conditional_models import (
     ConditionalAnalysisBundle,
     ConditionalAnalysisDraft,
+    EXTENSION_MODULES,
     ExtensionEvidenceProfile,
     ModuleDecisionRecord,
+    StrategicActionPlan,
+    StrategyChoice,
+    ValidationAction,
 )
-from src.models import ContentOrigin, EvidenceExtraction, EvidencePool, ModuleName, ResearchRequest
+from src.models import (
+    Confidence,
+    ContentOrigin,
+    EvidenceExtraction,
+    EvidencePool,
+    ModuleName,
+    ResearchRequest,
+)
 from src.ports import ModelClient
 from src.research_model import (
     ModelOutputValidationError,
@@ -52,6 +63,71 @@ class ConditionalAnalysisService:
         return ConditionalAnalysisBundle(
             decisions=decisions,
             action_plan=draft.action_plan,
+        )
+
+    @staticmethod
+    def fallback(
+        required: RequiredStrategyAnalysis,
+        *,
+        reason: str,
+    ) -> ConditionalAnalysisBundle:
+        """Return a conservative action plan when optional generation fails."""
+
+        conclusion = required.core_conclusions[0]
+        implication = required.strategic_implications[0]
+        source_ids = conclusion.evidence_ids
+        confidence = (
+            conclusion.confidence
+            if conclusion.confidence is not Confidence.UNKNOWN
+            else Confidence.LOW
+        )
+        segments = required.market.customer_structure.priority_segments
+        target = segments[0] if segments else "具备明确业务问题和试点负责人的客户"
+
+        def choice(value: str, rationale: str) -> StrategyChoice:
+            return StrategyChoice(
+                choice=value,
+                rationale=rationale,
+                evidence_ids=source_ids,
+                confidence=confidence,
+            )
+
+        decisions = [
+            ModuleDecisionRecord(
+                module=module,
+                enabled=False,
+                reason="扩展模块生成未完成，基础报告已保留。",
+                missing_evidence=[reason[:1200]],
+            )
+            for module in sorted(EXTENSION_MODULES, key=lambda item: item.value)
+        ]
+        action_plan = StrategicActionPlan(
+            target_customers=[choice(target, conclusion.conclusion)],
+            product_directions=[choice(implication.action, implication.rationale)],
+            channel_directions=[
+                choice("通过联合 PoC 验证客户价值", conclusion.conclusion)
+            ],
+            value_chain_choices=[
+                choice("聚焦可验证、可交付的核心能力环节", implication.rationale)
+            ],
+            validation_actions=[
+                ValidationAction(
+                    milestone_day=day,
+                    action=action,
+                    owner=owner,
+                    success_metric=metric,
+                    evidence_ids=source_ids,
+                )
+                for day, action, owner, metric in (
+                    (30, "完成目标客户访谈与问题确认", "战略负责人", "完成至少 5 次访谈"),
+                    (60, "完成一个可衡量的 PoC", "产品负责人", "形成试点前后指标对比"),
+                    (90, "复盘试点并决定扩展或停止", "业务负责人", "形成明确的继续/停止结论"),
+                )
+            ],
+        )
+        return ConditionalAnalysisBundle(
+            decisions=decisions,
+            action_plan=action_plan,
         )
 
     @staticmethod

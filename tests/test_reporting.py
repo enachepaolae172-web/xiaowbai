@@ -77,11 +77,14 @@ def build_report():
     extraction = EvidenceExtraction.model_validate(
         load_json("model_evidence_extraction.json")
     )
+    required_fixture = load_json("required_strategy_analysis.json")
     client = FakeModelClient(
         {
-            "required_strategy_analysis": load_json(
-                "required_strategy_analysis.json"
-            ),
+            "required_pest_analysis": {"pest": required_fixture["pest"]},
+            "required_market_analysis": {"market": required_fixture["market"]},
+            "required_five_forces_analysis": {
+                "five_forces": required_fixture["five_forces"]
+            },
             "conditional_modules_and_action_plan": load_json(
                 "conditional_analysis.json"
             ),

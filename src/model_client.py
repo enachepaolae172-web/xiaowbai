@@ -27,6 +27,7 @@ from src.model_tasks import (
     BASE_SYSTEM_PROMPT,
     REPAIR_SYSTEM_PROMPT,
     instruction_for,
+    max_tokens_for,
 )
 from src.models import ModelResponse
 
@@ -122,7 +123,7 @@ class DoubaoModelClient:
             },
         ]
 
-        first = self._create_completion(messages)
+        first = self._create_completion(messages, task=task)
         first_content = _response_content(first)
         first_input, first_output = _response_usage(first)
         self._record_usage(first_input, first_output)
@@ -148,7 +149,7 @@ class DoubaoModelClient:
                 ),
             },
         ]
-        repaired = self._create_completion(repair_messages)
+        repaired = self._create_completion(repair_messages, task=task)
         repaired_content = _response_content(repaired)
         repair_input, repair_output = _response_usage(repaired)
         self._record_usage(repair_input, repair_output)
@@ -173,7 +174,12 @@ class DoubaoModelClient:
             raise StructuredOutputError("豆包已响应，但连接测试结果格式不正确。")
         return response
 
-    def _create_completion(self, messages: Sequence[Mapping[str, str]]) -> Any:
+    def _create_completion(
+        self,
+        messages: Sequence[Mapping[str, str]],
+        *,
+        task: str,
+    ) -> Any:
         self.diagnostics.api_calls += 1
         try:
             response = self._client.chat.completions.create(
@@ -181,7 +187,7 @@ class DoubaoModelClient:
                 messages=list(messages),
                 response_format={"type": "json_object"},
                 temperature=0,
-                max_tokens=self.max_tokens,
+                max_tokens=max_tokens_for(task, self.max_tokens),
             )
             return response
         except AuthenticationError as exc:
