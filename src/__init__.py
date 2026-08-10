@@ -5,6 +5,7 @@ from src.conditional_analysis import ConditionalAnalysisService
 from src.conditional_models import ConditionalAnalysisBundle
 from src.model_client import DoubaoModelClient
 from src.models import EvidencePool, ResearchReport, ResearchRequest, SourceRecord
+from src.pipeline import ResearchPipeline, ResearchRunResult, SampleResearchRepository
 from src.reporting import MarkdownReportRenderer, ReportArtifact
 from src.research_model import ResearchModelService
 from src.search import TavilySearchClient
@@ -20,12 +21,15 @@ __all__ = [
     "DoubaoModelClient",
     "MarkdownReportRenderer",
     "ReportArtifact",
+    "ResearchPipeline",
     "ResearchReport",
     "ResearchRequest",
+    "ResearchRunResult",
     "ResearchModelService",
     "RequiredAnalysisService",
     "RequiredStrategyAnalysis",
     "SourceRecord",
+    "SampleResearchRepository",
     "TavilySearchClient",
     "WorkflowController",
 ]

@@ -4,11 +4,11 @@
 
 ## Current Status
 
-**Node 6 / 8:** evidence-gated extension modules, strategic action plan, and citable Markdown report.
+**Node 7 / 8:** complete local Streamlit product experience.
 
-The current version provides evidence collection, validated mandatory analysis, deterministic extension-module gates, and a Markdown report with citation auditing. Recommendations cover target customers, product, channel, value-chain position, and a 90-day validation plan. The complete Streamlit report experience remains behind the Node 7 review gate.
+The current version opens directly into a pre-generated Volcengine case, requires no API key in sample mode, and supports a complete real-time workflow with visitor-supplied Doubao and Tavily keys. Results are organized into five review tabs with citation auditing and Markdown download.
 
-## Planned Capabilities
+## Capabilities
 
 - PEST, market analysis, and Porter's Five Forces
 - Evidence-first web research with source identifiers
@@ -48,7 +48,7 @@ python -m pytest
 
 ## Configuration
 
-Copy `.env.example` to `.env` only when real-time mode is implemented. Real API keys must never be committed.
+Real-time mode accepts Doubao and Tavily keys through password fields in the current Streamlit session. Real API keys must never be committed or added to `.env` in a public checkout.
 
 ## Repository
 

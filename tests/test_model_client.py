@@ -5,6 +5,7 @@ import httpx
 import pytest
 from openai import APITimeoutError, AuthenticationError, RateLimitError
 
+from src.config import DEFAULT_MODEL_MAX_TOKENS
 from src.model_client import (
     DoubaoAuthenticationError,
     DoubaoModelClient,
@@ -64,7 +65,7 @@ def test_doubao_client_satisfies_model_protocol_and_tracks_usage() -> None:
     assert client.diagnostics.api_calls == 1
     assert client.diagnostics.input_tokens == 10
     assert fake.completions.calls[0]["response_format"] == {"type": "json_object"}
-    assert fake.completions.calls[0]["max_tokens"] == 4000
+    assert fake.completions.calls[0]["max_tokens"] == DEFAULT_MODEL_MAX_TOKENS
 
 
 def test_markdown_json_fence_is_accepted_without_repair() -> None:

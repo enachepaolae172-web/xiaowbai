@@ -313,7 +313,7 @@ class MarkdownReportRenderer:
             )
         markdown = "\n".join(lines).strip() + "\n"
         audit = audit_citations(body, pool)
-        character_count = len(re.sub(r"\s+", "", markdown))
+        character_count = report_character_count(markdown)
         return ReportArtifact(
             markdown=markdown,
             audit=audit,
@@ -348,6 +348,12 @@ def audit_citations(markdown_body: str, pool: EvidencePool) -> CitationAudit:
         unused_source_ids=sorted(known_ids - cited_ids),
         uncited_fact_lines=uncited_lines,
     )
+
+
+def report_character_count(markdown: str) -> int:
+    """Count report-body characters without inflating totals with source URLs."""
+    body = markdown.split("\n## 8. 来源", maxsplit=1)[0]
+    return len(re.sub(r"\s+", "", body))
 
 
 def _citations(source_ids: list[str]) -> str:

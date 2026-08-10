@@ -12,7 +12,11 @@ from src.models import (
     SourceRecord,
     SourceTier,
 )
-from src.reporting import MarkdownReportRenderer, audit_citations
+from src.reporting import (
+    MarkdownReportRenderer,
+    audit_citations,
+    report_character_count,
+)
 from src.strategy_analysis import RequiredAnalysisService
 
 
@@ -137,6 +141,14 @@ def test_markdown_can_be_downloaded_and_reopened_as_utf8(tmp_path: Path) -> None
 
     assert output.read_text(encoding="utf-8") == artifact.markdown
     assert "企业战略研究报告" in output.read_text(encoding="utf-8")
+
+
+def test_report_length_excludes_source_appendix_urls() -> None:
+    artifact = build_report()
+
+    longer_appendix = artifact.markdown + ("https://example.com/very-long-source-url" * 50)
+
+    assert report_character_count(longer_appendix) == artifact.character_count
 
 
 def test_citation_audit_reports_unknown_and_uncited_claims() -> None:

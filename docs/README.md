@@ -1,3 +1,5 @@
 # Documentation
 
-This directory will contain the product flow, architecture diagram, screenshots, and release materials.
+Node 7 provides the complete local Streamlit workflow. Architecture diagrams,
+screenshots, public deployment instructions, and release materials are completed in
+Node 8.

@@ -29,3 +29,8 @@ offline test index and must never be presented as real market data.
 Node 6 adds `conditional_analysis.json`. It enables only value-chain and lifecycle
 analysis, records why the other modules are skipped, and includes an evidence-linked
 target-customer, product, channel, value-chain, and 30/60/90-day action plan.
+
+Node 7 adds `strategy_report.md`, the pre-generated Volcengine report loaded by sample
+mode without any external API call. Maintainers can regenerate it with
+`python -m scripts.build_sample_report`; the script refuses reports that fail citation
+or length validation.
