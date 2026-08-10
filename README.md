@@ -1,36 +1,57 @@
 # Enterprise AI Strategy Research Agent
 
-企业战略研究助手是一款面向战略分析和商业研究场景的轻量 Agent。用户输入行业、地区、研究期间和战略问题后，系统将基于公开资料生成可追溯、可复核的战略研究报告。
+[简体中文](README.zh-CN.md) | English
 
-## Current Status
+An evidence-first strategy research workspace that turns a business question into a citable, reviewable Markdown report. It combines public-source retrieval, PEST, market analysis, Porter's Five Forces, evidence-gated extension modules, and a 30/60/90-day validation plan.
 
-**Node 7 / 8:** complete local Streamlit product experience.
+![Product walkthrough](docs/assets/demo.gif)
 
-The current version opens directly into a pre-generated Volcengine case, requires no API key in sample mode, and supports a complete real-time workflow with visitor-supplied Doubao and Tavily keys. Results are organized into five review tabs with citation auditing and Markdown download.
+## Why This Project
 
-## Capabilities
+Strategy research is rarely blocked by a lack of frameworks. The harder problem is keeping fragmented sources, statistical scopes, analytical judgments, and recommendations traceable. This project treats evidence as a first-class product object:
 
-- PEST, market analysis, and Porter's Five Forces
-- Evidence-first web research with source identifiers
-- Conditional concentration, value chain, key success factor, and lifecycle modules
-- Sample mode without API calls
-- Real-time mode using the visitor's Volcengine Ark and Tavily API keys
-- Markdown report preview and download
+- full-text sources may support facts; search snippets may only provide leads;
+- facts, judgments, counterpoints, unknowns, and recommendations stay separate;
+- every report claim uses a stable `[Sxx]` source identifier;
+- optional modules run only when deterministic evidence thresholds are met;
+- missing evidence remains visible instead of being filled with plausible prose.
 
-## Tech Stack
+## Product Experience
 
-- Python 3.12
-- Streamlit
-- Pydantic
-- OpenAI Python SDK with Volcengine Ark compatibility
-- Tavily
-- pytest
+**Sample mode** opens a pre-generated Volcengine enterprise AI Agent case without API calls. **Real-time mode** accepts the visitor's Doubao and Tavily keys for the current session and runs the complete workflow.
 
-No LangChain, database, vector store, or multi-agent framework is used in V0.1.
+The result workspace contains five views:
 
-## Local Setup
+1. Core conclusions and research questions
+2. PEST, market, customer, and procurement analysis
+3. Porter's Five Forces and enabled extension modules
+4. Target customer, product, channel, value-chain, and 90-day recommendations
+5. Sources, skipped modules, missing evidence, unknowns, and full Markdown
+
+## Architecture
+
+```mermaid
+flowchart LR
+    UI["Streamlit workspace"] --> PIPE["Fixed research pipeline"]
+    PIPE --> LLM["Doubao structured JSON"]
+    PIPE --> SEARCH["Tavily Search + Extract"]
+    SEARCH --> POOL["Tiered evidence pool"]
+    LLM --> POOL
+    POOL --> REQUIRED["PEST + Market + Five Forces"]
+    REQUIRED --> GATES["Deterministic extension gates"]
+    GATES --> REPORT["Citation audit + Markdown report"]
+    REPORT --> UI
+```
+
+The application uses plain Python orchestration with Pydantic contracts. It does not use LangChain, a vector database, a database, or a multi-agent framework. See [Architecture and workflow](docs/architecture.md) for the full design.
+
+## Quick Start
+
+Requirements: Python 3.12.
 
 ```powershell
+git clone <your-repository-url>
+cd enterprise-ai-strategy-agent
 py -3.12 -m venv .venv
 .venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
@@ -38,31 +59,57 @@ python -m pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Open `http://localhost:8501` after the server starts.
+Open `http://localhost:8501`. Sample mode is immediately available. Real-time mode requires:
+
+- a Volcengine Ark API key with access to the configured Doubao model;
+- a Tavily API key.
+
+Keys entered in the UI are not written to reports, logs, or project files.
 
 ## Tests
 
 ```powershell
 python -m pytest
+python -m scripts.build_sample_report
 ```
 
-## Configuration
+The test suite covers input validation, source normalization, evidence extraction, model JSON repair, PEST and Five Forces contracts, optional-module gates, citation checks, sample and real-time pipeline behavior, UTF-8 Markdown output, and Streamlit UI states.
 
-Real-time mode accepts Doubao and Tavily keys through password fields in the current Streamlit session. Real API keys must never be committed or added to `.env` in a public checkout.
+## Repository Map
 
-## Repository
+| Path | Purpose |
+|---|---|
+| `app.py` | Streamlit interface and report views |
+| `src/pipeline.py` | Fixed end-to-end research orchestration |
+| `src/search.py` | Tavily adapter, URL normalization, and diagnostics |
+| `src/evidence.py` | Source classification and evidence-pool construction |
+| `src/strategy_analysis.py` | Mandatory PEST, market, and Five Forces validation |
+| `src/conditional_analysis.py` | Deterministic optional-module eligibility gates |
+| `src/reporting.py` | Markdown renderer and `[Sxx]` citation audit |
+| `data/sample/` | Offline fixtures and the pre-generated case report |
+| `tests/` | Unit, workflow, UI, and safety tests |
 
-- [Product requirements](PRD.md)
-- [Documentation workspace](docs/README.md)
-- [Prompt workspace](prompts/README.md)
-- [Sample data workspace](data/sample/README.md)
+## Boundaries
+
+- The output is a research draft, not investment or management advice.
+- Public sources may be incomplete, stale, or based on incompatible definitions.
+- The model does not bypass paywalls or access private databases.
+- V0.1 does not include accounts, a database, task history, file upload, PDF/Word export, or scheduled monitoring.
+- Human review remains required before using a recommendation.
 
 ## Security
 
-- Real API keys are excluded by `.gitignore`.
-- Public demos will not include an author-owned API key.
-- Session keys must not be written to logs, generated reports, or source files.
+Real secrets are excluded by `.gitignore`; the repository history is scanned before release. The public demo never ships an author-owned API key. See [Security policy](SECURITY.md).
+
+## Documentation
+
+- [Chinese README](README.zh-CN.md)
+- [Product requirements](PRD.md)
+- [Architecture and workflow](docs/architecture.md)
+- [Public deployment](docs/deployment.md)
+- [Sample report](data/sample/strategy_report.md)
+- [Changelog](CHANGELOG.md)
 
 ## License
 
-No license has been selected yet. A license will be added before the public V0.1 release.
+[MIT](LICENSE)
